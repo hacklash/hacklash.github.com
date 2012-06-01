@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: links | Trevor Oakes]]></title>
+  <link href="http://hacklash.github.com/blog/categories/links/atom.xml" rel="self"/>
+  <link href="http://hacklash.github.com/"/>
+  <updated>2012-06-01T10:19:03-06:00</updated>
+  <id>http://hacklash.github.com/</id>
+  <author>
+    <name><![CDATA[Trevor Oakes]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Algorithms Are Not a Four-Letter Word]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/24/algorithms-are-not-a-four-letter-word/"/>
+    <updated>2011-11-24T15:30:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/24/algorithms-are-not-a-four-letter-word</id>
+    <content type="html"><![CDATA[<p>Algorithms are important. And actually interesting too, especially if you get away from the dry textbooks and into some applications.</p>
+
+<p>This presentation does that with minimum spanning tree algorithms and shows how they can be used to generate mazes. Watching as the mazes are created is beautiful, so <a href="http://www.jamisbuck.org/presentations/rubyconf2011/index.html#thanks">check them out</a> if that's all you get from this post.</p>
+
+<p>In addition he uses these algorithms as examples of deliberate practice, something I'll be talking about a lot more, hopefully soon. That's because it is important for maximizing one's potential productivity, and Jamis makes a <a href="http://www.jamisbuck.org/presentations/rubyconf2011/index.html">convincing case for deliberate practice</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Haskell Amuse-Bouche: Google Tech Talk [Video]]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/21/haskell-amuse-bouche-google-tech-talk-video/"/>
+    <updated>2011-11-21T15:26:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/21/haskell-amuse-bouche-google-tech-talk-video</id>
+    <content type="html"><![CDATA[<p>As I mentioned in <a href="http://www.trevoroakes.com/blog/2011/10/26/expand-your-mind-with-your-next-programming-language/">a previous post</a> one of the languages I will be learning soon is Haskell. If you've never heard of Haskell or you have and don't know why you should be interested in learning it, this Google Tech Talk is for you. I really enjoyed it and am excited to have my mind wrung out and then filled up with new ways of thinking about programming.</p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/b9FagOVqxmI" frameborder="0" allowfullscreen></iframe>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[One Reason Array Based Programming Is Amazing [Video]]]></title>
+    <link href="http://hacklash.github.com/blog/2011/10/27/one-reason-array-based-programming-is-amazing-video/"/>
+    <updated>2011-10-27T13:36:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/10/27/one-reason-array-based-programming-is-amazing-video</id>
+    <content type="html"><![CDATA[<p>I mentioned array based programming yesterday as one of the paradigms to consider when choosing a new programming language. If you want a good reason why you should consider them, take a look at this video of Conway's Game of Life in APL, one of a few Array Based Programming Languages:</p>
+
+<iframe width="420" height="315" src="http://www.youtube.com/embed/a9xAKttWgP4" frameborder="0" allowfullscreen></iframe>
+
+
+<p>For some more craziness see some <a href="https://github.com/kevinlawler/kona/wiki/Project-Euler-Code-Golf">code golf for Project Euler Problems using K</a>, another array based language. Remember though, this is code golf, so solutions should be expected to be hard to understand and much less readable than production code.</p>
+]]></content>
+  </entry>
+  
+</feed>

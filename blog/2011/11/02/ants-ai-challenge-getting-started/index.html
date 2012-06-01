@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Ants AI Challenge: Getting Started - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="The Ants AI Challenge is an very cool competition to test and improve your coding chops. Essentially you write a program to control a colony of ants &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Ants AI Challenge: Getting Started</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-02T15:48:00-06:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>The Ants AI Challenge is an very cool competition to test and improve your coding chops. Essentially you write a program to control a colony of ants like the Bugger Queen from Ender&#8217;s Game would.</p>
+
+<p>The official website does a pretty good job of getting you started, but I&#8217;ll give you some reccomendations having recently run through the startup process.</p>
+
+<!-- more -->
+
+
+<h2><a href="http://aichallenge.org/quickstart.php">Go Through the 5 Minute Quickstart Guide</a></h2>
+
+<p>This will get you through the account setup process and show you how to upload your bot to be tested after you&#8217;ve modified it.</p>
+
+<h2><a href="http://aichallenge.org/ants_tutorial.php">Go Through The Tutorial</a></h2>
+
+<p>This will help you develop simple versions of most of the tactics you&#8217;ll likely be working on for the rest of the contest:</p>
+
+<ul>
+<li>Avoiding Collisions</li>
+<li>Gathering Food</li>
+<li>Exploring the Map</li>
+<li>Managing New Ant Arrival through the Ant Hills</li>
+<li>Exploring the Map</li>
+<li>Attacking and Defending Hills</li>
+<li>Battles with other Ants</li>
+<li>Pathfinding</li>
+</ul>
+
+
+<h2><a href="http://aichallenge.org/using_the_tools.php">Download and Learn How to Use the Tools</a></h2>
+
+<p>As you build and improve your bot you&#8217;ll want to make sure that it still works and is improving. The simplest way to do that is to run a game using the tools. Actually the tutorial will go over this, but its important enough to say twice.</p>
+
+<p>If your bot is crashing you&#8217;ll want to see what went wrong, but its not obvious at first glance how to do that. What you need to do is add the -E option to your game playing script. This will print out any errors (and any debug information piped to stderr) into the game_logs folder by bot. This has been extremely helpful for me.</p>
+
+<h2>Some Other Cool Resources</h2>
+
+<p>Just keep in mind that I haven&#8217;t dug into some of these yet.</p>
+
+<p><a href="https://github.com/aichallenge/aichallenge/tree/epsilon/ants/dist/starter_bots">Better starter bot code</a> - Some changes have been made to the starter bots in the code repository, but haven&#8217;t yet been pushed to the zip files the website gives out. I know for a fact that the Java version is missing some useful code (seen vs unseen tracking). <a href="https://github.com/aichallenge/aichallenge/zipball/epsilon">Download a zipfile</a> or tarball if the code looks different than what you&#8217;ve got.</p>
+
+<p><a href="https://github.com/j-h-a/aichallenge/blob/vis_overlay/VIS_OVERLAY.md">A better visualizer</a> - so that you can see what your bot is thinking without having to resort to print statements. Very cool.</p>
+
+<p><a href="http://forums.aichallenge.org/viewtopic.php?f=25&amp;t=2007">Tcp Servers</a> - Is the official server playing games too slow for you? Run games on your own computer playing other bots doing the same thing through a tcp server. All the best bots are doing it &#8230;. :)</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-02T15:48:00-06:00" pubdate data-updated="true">Nov 2<span>nd</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ants/'>Ants</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/10/27/one-reason-array-based-programming-is-amazing-video/" title="Previous Post: One Reason Array Based Programming Is Amazing [Video]">&laquo; One Reason Array Based Programming Is Amazing [Video]</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/11/09/making-things-happen-a-simple-help-queue/" title="Next Post: Making Things Happen: A Simple Help Queue">Making Things Happen: A Simple Help Queue &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/">GreenTea's 2nd Place Entry Postmortem Translated by Hand</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started/';
+        var disqus_url = 'http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

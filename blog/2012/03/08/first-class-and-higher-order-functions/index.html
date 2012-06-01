@@ -1,0 +1,363 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>First Class and Higher Order Functions - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="In order to expand my mind, I&#8217;ve been exploring different languages, but sometimes I&#8217;ve had to come back to the first language I learned &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2012/03/08/first-class-and-higher-order-functions">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">First Class and Higher Order Functions</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-08T21:24:00-07:00" pubdate data-updated="true">Mar 8<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>In order to expand my mind, I&#8217;ve been exploring different languages, but sometimes I&#8217;ve had to come back to the first language I learned in depth: Java. And when I do, the thing I miss most is first class, higher order functions. That and pattern matching.</p>
+
+<p>Let me show you what I mean:</p>
+
+<!-- more -->
+
+
+
+
+<div><script src='https://gist.github.com/2014986.js?file=fcf.rkt'></script>
+<noscript><pre><code>#lang racket
+(require rackunit)
+
+; A higher order function is simply a function that accepts a
+; function as an argument or returns a function, or even both.
+; Here is a handy higher order function, zipWith:
+(define (zipWith f l1 l2)
+  (if (or (empty? l1) (empty? l2))
+      empty
+      (cons (f (first l1) (first l2))
+            (zipWith f (rest l1) (rest l2)))))
+
+; It takes in a function f and two lists, l1 and l2, and returns
+; a list where the function has been applied to pairs of arguments
+; from l1 and l2. Here is its type:
+;; zipWith ((a b)-&gt;c) list&lt;a&gt; list&lt;b&gt; -&gt; list&lt;c&gt;
+
+; So if know how much candy your kids got on Halloween
+(define kids-candy '(10 13 10 50 17))
+; and you keep track of how much candy you threw away (or ate)
+; to prevent them from getting totally sick
+(define candy-disposed '(2 4 8 5 7))
+; then you can easily figure out how much each  kid has after your tax
+(check-equal? (zipWith - kids-candy candy-disposed)
+              '(8 9 2 45 10))
+
+; Compose is a higher order function that happens to take functions as
+; arguments and return a function
+(define (compose f g) (lambda (x) (f (g x))))
+(define (cube x) (expt x 3))
+(define (cube-root x) (expt x (/ 1 3)))
+
+; Actually, in Racket, zipWith is equivalent to the builtin map
+;; map ( (a0 a1 .. an)-&gt;b list&lt;a0&gt; list&lt;a1&gt; .. list&lt;an&gt; ) -&gt; list&lt;b&gt;
+; so we can show that a function composed with its inverse
+; is like doing nothing to its input (ignoring rounding errors) thus:
+(for ([h (map compose 
+              (list sin cos cube) 
+              (list asin acos cube-root))])
+  (displayln (h 0.5)))
+; 0.5
+; 0.4999999999999999
+; 0.5000000000000001</code></pre></noscript></div>
+
+
+<p>The cool thing about a language with first class functions, like Racket, is that if the language did not provide us with map, we can write zipWith.</p>
+
+<p>But besides that, allowing functions as arguments to and return values from functions allows you to abstract more things than you can without that ability.
+Many design patterns exist because the language does not have first class functions, but because that idea is very useful, people emulate first class functions poorly using object orientation. The visitor pattern, for example, is essentially a fold.</p>
+
+<p>A programmer can emulate first class functions by hand using object orientation, but take a look at an attempt to do what took 7 short lines above in Racket in Java and ask yourself, why not use a language with them in the first place?</p>
+
+<div><script src='https://gist.github.com/2014986.js?file=fcf-attempt.java'></script>
+<noscript><pre><code>public static Function&lt;Double, Double&gt; compose(
+        final Function&lt;Double, Double&gt; f, final Function&lt;Double, Double&gt; g) {
+    return new Function&lt;Double, Double&gt;() {
+        @Override public Double apply(Double x) {
+            return f.apply(g.apply(x));
+        }
+    };
+}
+ 
+@SuppressWarnings(&quot;unchecked&quot;) public static void main(String[] args) {
+    ArrayList&lt;Function&lt;Double, Double&gt;&gt; functions = Lists.newArrayList(
+            new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.cos(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.tan(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return x * x;
+                }
+            });
+    ArrayList&lt;Function&lt;Double, Double&gt;&gt; inverse = Lists.newArrayList(
+            new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.acos(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.atan(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.sqrt(x);
+                }
+            });
+    for (int i = 0; i &lt; functions.size(); i++) {
+        System.out.println(compose(functions.get(i), inverse.get(i)).apply(0.5));
+    }
+}</code></pre></noscript></div>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-08T21:24:00-07:00" pubdate data-updated="true">Mar 8<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/01/john-carmack-on-static-analysis/" title="Previous Post: John Carmack on Static Analysis">&laquo; John Carmack on Static Analysis</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2012/03/17/intro-to-deforestation-and-macros/" title="Next Post: Intro to Deforestation and Macros">Intro to Deforestation and Macros &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/">GreenTea's 2nd Place Entry Postmortem Translated by Hand</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2012/03/08/first-class-and-higher-order-functions/';
+        var disqus_url = 'http://hacklash.github.com/blog/2012/03/08/first-class-and-higher-order-functions/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

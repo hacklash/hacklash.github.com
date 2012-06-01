@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: 10xProductivity | Trevor Oakes]]></title>
+  <link href="http://hacklash.github.com/blog/categories/10xproductivity/atom.xml" rel="self"/>
+  <link href="http://hacklash.github.com/"/>
+  <updated>2012-06-01T10:19:03-06:00</updated>
+  <id>http://hacklash.github.com/</id>
+  <author>
+    <name><![CDATA[Trevor Oakes]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[John Carmack on Static Analysis]]></title>
+    <link href="http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis/"/>
+    <updated>2012-03-01T15:22:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis</id>
+    <content type="html"><![CDATA[<p>... and functional programming.</p>
+
+<p><blockquote><p>The most important thing I have done as a programmer in recent years is to aggressively pursue static code analysis.  Even more valuable than the hundreds of serious bugs I have prevented with it is the change in mindset about the way I view software reliability and code quality.</p><footer><strong>John Carmack, #AltDevBlogADay</strong> <cite><a href='http://altdevblogaday.com/2011/12/24/static-code-analysis/'>altdevblogaday.com/2011/12/24/&hellip;</a></cite></footer></blockquote></p>
+
+<p>Now if you don't know who that is, that's ok, but out of the people in industry that I know, which to be fair isn't many, John Carmack is the programmer that I repect the most. It's not just because he created some very popular games (Doom and Quake for instance) but that he essentially created the western game industry as we know it by creating whole new graphics techniques.</p>
+
+<p>First he wrote the first all-software 2d game engine for Commander Keane, and then he created the whole 3d games genre with Doom. The techniques he developed and even a decent chunk of the code that John Carmack has written lives in practically every 3d western game you've ever played. Wow.</p>
+
+<p>I'm really glad that Carmack recognizes the importance of static analysis and functional programming languages on code quality, and its good to hear when reasearch we have about software productivity is supported by luminaries in industry. I've started the video where he begins talking about static analysis which goes until 1:12:35.</p>
+
+<p><em>Stay til then and you'll hear him recommend Haskell and Ocaml, which makes me smile.</em></p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/4zgYG-_ha28?rel=0&start=3253" frameborder="0" allowfullscreen></iframe>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[10x Productivity and Developing Expertise: Introduction]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/16/10x-productivity-and-developing-expertise-introduction/"/>
+    <updated>2011-11-16T17:47:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/16/10x-productivity-and-developing-expertise-introduction</id>
+    <content type="html"><![CDATA[<h2>Abstract</h2>
+
+<p>The fact that some programmers are ten times better than others is widely cited and gained a lot of exposure thanks to bloggers like Joel Spolsky. The original experiment to uncover this effect is over 40 years old, and yet the reasons why some are so much more effective than others is poorly understood, in the research and especially among programmers in the field.</p>
+
+<p>This post will hopefully be the start of a series of posts on the differences between the best, worst and median programmers as seen in factors of ten difference in productivity, even when experiments control for experience. I'll delve into how an individual programmer can become more like the most effective and productice programmers and how small teams, also affected by large differences in productivity, can make themeselves more competitive and productive. We'll tour the psychological studies and mine the software engineering studies to find out what has been proven to work.</p>
+
+<p>Based on the research I've done so far, likely future topics include: increasing efficiency, avoiding rework through design best practices, accurate requirements, focus on quality, doing less through simplicity and reuse, and team programming methodologies such as Agile and CCMI.</p>
+
+<p>Oh, if this sounds like a scholarly research paper ... that's because it is based on a paper I did. But now with the new format I can dig even deeper and spend more time on specific issues that didn't fit the audience of the actual paper. Hooray for the internet and stay tuned.</p>
+
+<!-- more -->
+
+
+<h2>Introduction</h2>
+
+<p>Programming productivity is a phenomenon primarily studied from the perspective of a business owner or manager, and it seems obvious why. Increasing the value of what you produce relative to your costs leads almost directly to profit, the purpose for a company’s very existence. If a company cannot thrive in a competitive market, increased productivity allows it to decrease prices to survive. The correlation between productivity and profit is even stronger when talking about software because the marginal cost of delivering completed software to a customer is essentially zero.  Almost the entire cost to a software company is the cost of production.</p>
+
+<p>Since most of the research on programming productivity is from the employer’s perspective, it is less obvious to an individual how they could increase their own productivity. It is also less obvious why a programmer would want to increase his productivity.</p>
+
+<p>The rationale that most excites me is the opportunity to increase my influence and power to achieve my own goals and make an impact on the world. If I choose projects that have a positive impact on the world, then by becoming better at programming I can have a larger positive impact on the world. That excites me quite a bit.</p>
+
+<p>However, there is another reason to try and become more productive, the same one as for businesses in fact: profit.</p>
+
+<p>More productive employees are more valuable to and better compensated by businesses as evidenced by the wide ranges of salaries for developers. According to the Bureau of Labor Statistics, those at the twenty-fifth percentile make 1.54 times as much as those at the seventy-fifth percentile, while those at the tenth percentile make 1.9 times as much (<a href="http://www.bls.gov/oco/ocos303.htm#earnings">Bureau 2011</a>). For most individual developers there is significant room to improve their individual earnings.</p>
+
+<p>Presumably a wide variability in programmer performance justifies the wide variability in programmer earnings. In fact there is much more variability in performance than in earnings. Whereas some programmers make about 2.5 times what others make (Bureau 2011), some programmers are ten times as productive as others or more. In the 1960s Sackman, Erikson and Grant conducted the first study to note this variability. Despite some methodological flaws, their data demonstrated a greater than tenfold difference in productivity between the best programmers and the worst. From their sample of professional programmers with at least seven years’ experience, they found no relationship between experience and productivity or code quality (<a href="http://scholar.google.com/scholar?cluster=13171528537832788739">Sackman 1968</a>). This result has been confirmed in study after study: even among programmers with the same level of experience, some are ten times as productive as others (<a href="http://scholar.google.com/scholar?cluster=9552204599209476298">Curtis 1981</a>; <a href="http://scholar.google.com/scholar?cluster=5992780401482396748">DeMarco 1985</a>; <a href="http://scholar.google.com/scholar?cluster=2742861397707053339">Curtis 1986</a>; <a href="http://scholar.google.com/scholar?cluster=4302656467398926747">Boehm 1988</a>; <a href="http://scholar.google.com/scholar?cluster=13528559613230360285">Valett 1989</a>; <a href="http://scholar.google.com/scholar?cluster=10867704288893317825">Boehm 2000</a>).</p>
+
+<p>Knowing that programmer productivity varies so much, several questions demand answers. What separates the best programmers from mediocre programmers? Is it possible to significantly improve my own productivity? How? For the remainder of the series I will do my best to answer these questions. This is still an active area of research, however, with many possible upcoming breakthroughs, but I will focus on things that have been well researched thus far.</p>
+]]></content>
+  </entry>
+  
+</feed>

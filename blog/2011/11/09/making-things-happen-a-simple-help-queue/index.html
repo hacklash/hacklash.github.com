@@ -1,0 +1,300 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Making Things Happen: A Simple Help Queue - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="I&#8217;m currently a TA for BYU&#8217;s intro to programming class (CS 142) which is fun and interesting and a good opportunity to cement the intro &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2011/11/09/making-things-happen-a-simple-help-queue">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Making Things Happen: A Simple Help Queue</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-09T17:13:00-07:00" pubdate data-updated="true">Nov 9<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I&#8217;m currently a TA for BYU&#8217;s intro to programming class (CS 142) which is fun and interesting and a good opportunity to cement the intro concepts in my mind by teaching and explaining them as simply as possible.</p>
+
+<p>There was one negative about being a TA. We had to stare at this all day:
+<img src="/images/HelpQueueOldTA.png"></p>
+
+<p>This is the Help Queue as viewed by a TA, which sits open eternally, (while on shift at least) watching us like those annoying people who read over your shoulder, while you are trying to read some programming article or work on the wiki or run through next week&#8217;s lab. Then all of a sudden it&#8217;s like the bat signal, interrupting what you&#8217;re doing, because somebody, somewhere, needs help.</p>
+
+<p>That&#8217;s fine and dandy but there are two problems with it though: it&#8217;s ugly and it doesn&#8217;t quite work the way we the TA&#8217;s or the students like.</p>
+
+<p><img src="/images/HelpQueueOldList.png">
+<em>See? Ugly.</em></p>
+
+<!-- more -->
+
+
+<h2>Batman to the Rescue</h2>
+
+<p>I wish. Instead I volunteered to play around with the code.</p>
+
+<p>Did I know Python? Not really, unless you count completing the first few challenges from the <a href="http://www.pythonchallenge.com">Python Challenge</a>.</p>
+
+<p>Did I know Google App Engine? Well, not unless you count hearing about it.</p>
+
+<p>Had I ever written css? Nope, never.</p>
+
+<p>Did that stop me? Nope, even though it would be generous to say I was poorly prepared for the project.</p>
+
+<p>The hardest part of jumping into an existing project, as usual, was reading, understanding and getting up to speed with the existing code.</p>
+
+<p>6 or seven iterations later based on feedback, 18 coding hours and only an hour and a half spent on the css, I ended up with this:
+<img src="/images/HelpQueueNewTA.png">
+<em>Note that Sara requested help after Jared but gets priority because she is ready to pass off and go home.</em></p>
+
+<p>I&#8217;ve gotten really excited about this. More than I probably should. Family members and roommates alike respond with a big whoop. However, I was really surprised by how easy picking up and creating a decent looking page using CSS really was. I&#8217;m not going to claim that it is beautiful though. Far from it.</p>
+
+<h2>&#8220;Ooh, Shiny! Can I Touch It?&#8221;</h2>
+
+<p>Yes, yes you may. I created a demo site so that you could play with and not cause too much mayhem.</p>
+
+<p>Here&#8217;s the link TA&#8217;s use to <a href="http://taohelpqueue.appspot.com/givehelp/HNJU7GZKU6AAJM9GJQ9KQGYHFFWYM6">give help</a>.
+And here&#8217;s what students see when they need to <a href="http://taohelpqueue.appspot.com/requesthelp/TPMPN4WPK7VP833CVKKCKBXVEQ732J">ask for help</a>.</p>
+
+<p>There are still a few performance issues, made especially apparent by the recent changes in AppEngine&#8217;s price structure. Also the code is a little messy.</p>
+
+<p>If anyone&#8217;s interested I&#8217;ll refactor it, fix performance issues and release it as a small open source project on my github account. <em>Comments and Questions Welcome</em></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-11-09T17:13:00-07:00" pubdate data-updated="true">Nov 9<span>th</span>, 2011</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2011/11/02/ants-ai-challenge-getting-started/" title="Previous Post: Ants AI Challenge: Getting Started">&laquo; Ants AI Challenge: Getting Started</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/11/16/10x-productivity-and-developing-expertise-introduction/" title="Next Post: 10x Productivity and Developing Expertise: Introduction">10x Productivity and Developing Expertise: Introduction &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/">GreenTea's 2nd Place Entry Postmortem Translated by Hand</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2011/11/09/making-things-happen-a-simple-help-queue/';
+        var disqus_url = 'http://hacklash.github.com/blog/2011/11/09/making-things-happen-a-simple-help-queue/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ants | Trevor Oakes]]></title>
+  <link href="http://hacklash.github.com/blog/categories/ants/atom.xml" rel="self"/>
+  <link href="http://hacklash.github.com/"/>
+  <updated>2012-06-01T10:19:03-06:00</updated>
+  <id>http://hacklash.github.com/</id>
+  <author>
+    <name><![CDATA[Trevor Oakes]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[GreenTea's 2nd Place Entry Postmortem Translated by Hand]]></title>
+    <link href="http://hacklash.github.com/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/"/>
+    <updated>2011-12-23T22:10:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand</id>
+    <content type="html"><![CDATA[<h2>Editorial stuff</h2>
+
+<p>This is the <a href="http://brunneng.blogspot.com/2011/12/google-ai-challenge-2011-ants.html">original</a> but I got tired of reading the Google Translation and thought that more people would enjoy reading the postmortem in native(-ish) English. I'd like to thank GreenTea for linking to this and for any Russian speakers, proshu prosheniye za oshibki perovedeniya.
+Before we begin, here is the <a href="https://sourceforge.net/projects/ants2011/">code for the final bot</a>.</p>
+
+<p><strong>Begin Translation</strong></p>
+
+<p>As I write this post the finals of the Google AI Contest 2011 - Ants is in full swing. The organizers are gradually cutting off the weaker bots to allow the stronger ones to play more. According to the timer on the <a href="http://ants.aichallenge.org">official site</a> the winner will be announced in 1 day, 5 hours, 35 minutes and 5, 4, 3, 2 ... seconds.</p>
+
+<p>Oh yeah, what was I saying? At the moment <a href="http://ants.aichallenge.org/profile.php?user=398">my bot GreenTea</a> is in third place (<em>Ed. it finished in second place</em>). And it is the focus of this post. I don't even know where best to start since so much effort and time was invested, beginning with the beta itself before hills were added to the game ...</p>
+
+<p>This year's beta ended up dragging on for an inexcusable amount of time. This greatly undermined my faith in enthusiasm and in open source. Then suddenly the developers wrote on the site "Sponsored by Google" and then an intense commotion began to stir as well as some commits. Come on! Although better that than the alternative :) - I really thought that it was going to stall at the beta stage and that would be it ... And the whole beta (I can't even remember how long anymore, 4 months?) I coded something little by little, adding and improving.</p>
+
+<p>If there's a reason I love this type of competition, it's because there is LOTS of time. You don't have to hurry or rush: you can sit down, think everything through, try stuff, test, make a change ... make 5 more changes, do some more testing, etc. Basically its enjoyable to program within my level of understanding.</p>
+
+<!-- more -->
+
+
+<h1>Game Mechanics</h1>
+
+<p>The map is a rectangular torus of a certain size, where by going  off of top you'll arrive at bottom and if you go over the left side you will end up on the right side. Each player starts with the same number of holes and an ant next to each hole. Every tile on the map can be either land, or water which is impassable for an ant. Ants should collect food because for each piece collected an ant will appear out of one of that player's holes, chosen at random. Food appears randomly on the map. If ants belonging to different players after the move phase are within the attack radius, they will fight. The combat rules are not exactly easy to explain but suffice it to say that, in general, more ants  a player has in the battle, the fewer ants they will lose. A hole is destroyed when an ant stands on a hole belonging to a different player. Destroying a hole is worth 2 points and losing a hole costs you 1 point. So if the choice is between capturing an enemy's hole and saving your own, you should only prefer the first option if you have more than 1 hole left. For each turn your bot needs to tell each ant where to go. Oh, I almost forgot to mention that each map is symmetric and the food also pops up symmetrically random so that everything is fair for each player. And that's it! These aren't tricky rules.</p>
+
+<p>In contrast to Planet Wars, where moves were not clear, this game is easier to break into sub-problems and then solve each individually. Well, for example, it's obvious that you need to race for the food that is evenly spread across the map and then assault the enemy with your large numbers of ants. The funny thing is that even though the competition is easier and clearer for everyone individually, it is just as complex to defeat everyone else and the dificulty of the competition didn't decrease at all.</p>
+
+<h1>My Tools</h1>
+
+<h2>Java</h2>
+
+<p>I am a java developer. It is a simple and fast language. It allows you to very quickly pump out tons of code (if you need to implement some fresh idea) without worrying about all sorts of system things like memory leaks (hi C++ !!).
+For these reasons I chose to write my bot in Java. At some point in the middle of the beta I tried switching to SBCL Lisp for fun. I didn't work out ... My path finding algorithms, written exactly the same way but in Lisp were 5 time slower than the Java versions. It's possible that this is because I don't know Lisp well enough ...</p>
+
+<h2><a href="http://www.jetbrains.com/idea/">IntelliJ IDEA Community Edition</a></h2>
+
+<p>Excellent development environment. I had practically no complaints throughout the process. Once, however, the incremental compilation cache got corrupted ?and it complained that every line of code was a compilation error. I ended up having to clear the cache by hand and restart.</p>
+
+<h2>git</h2>
+
+<p>I really regretted not using version control on Planet Wars. I fixed this error, and from the start committed my code to a git repository. Git won me over with its many options and speed (in comparison with svn).</p>
+
+<h2>Perl Scripts</h2>
+
+<p>In the previous contest, Planet Wars, I created scripts to automatically test my bot against my own previous versions. It would be a sin not to use them like this! I had to modify the script to adapt it to multiplayer maps and the free for all mode - i.e. every man for himself.
+For example:
+<img class="center" src="/images/GreenTea/01.png"></p>
+
+<p>After Game three the bot:</p>
+
+<ul>
+<li><p>Beat 1.5 bots and lost to 4.5 bots (A tie is split between the two)</p></li>
+<li><p>Scored 0 points while the other bots scored 2.16 points on average</p></li>
+</ul>
+
+
+<p>And the Summary Info:</p>
+
+<ul>
+<li><p>4.5 wins (45%)</p></li>
+<li><p>5.5 losses</p></li>
+<li><p>4 points scored total (sum from all games)</p></li>
+<li><p>3.66 is the sum of the mean scores for all opponents</p></li>
+</ul>
+
+
+<h2>Google Documents Spreadsheets</h2>
+
+<p>I used it to keep track of my improvements, bot versions and the results of testing the different versions against each other on different maps and with different food spawning patterns.</p>
+
+<h2>Sampling Profiler <a href="http://java.sun.com/developer/technicalArticles/Programming/HPROF.html">hprof</a></h2>
+
+<p>This tool was a large help to me. Looking ahead about 2 weeks before the deadline, my bot still very frequently timed out (took more than 500 ms on at least one turn). I couldn't understand how this was happening. At first glance the code was clean and ideal, and looking at the data for the game the bot timed out showed that the bot should have had time to finish the turn (for example 300ms left). Then why is it stuttering and falling on its face? I had begun thinking about all sorts of mystical causes, like the garbage collection running at some point and pausing execution. Perhaps this is part of the problem, but the solution was much simpler than that. I don't remember how exactly, but I ran into hprof. You run it in its own process as an agent to java-e (something like this: "agentlib:hprof=cpu=samples,interval=10,depth=10") and as the program runs (in my case as the bot takes its turns, say 200 turns) it gathers statistics about which pieces of code run most often. With this help I found many not-so-obvious places that were running slowly. There was some old, creaky code which could be made 10x simpler! Actually, there was quite a bit of it. Because of these tweaks my bot ran about 40% faster and all of my timeouts on the official site disappeared.</p>
+
+<h1>Birth and Evolution</h1>
+
+<p><blockquote><p>The young do not remember, but I do, that it all began in an open space. Ants were nomads and had no holes. For what purpose are holes when ants are born from a piece of food? In these wide open spaces the childhood and youth of GreenTea were spent. In the beginning while still very young, we walked towards our food in a straight line, now and then bumping into the wall. Sometimes we would get stuck to them, struggle, but could not escape. Later I learned to <strike>walk</strike> find the shortest path to food ...</p></blockquote></p>
+
+<p>The first part implemented was spreading out evenly on the visible portion of the map. Implementing the rule to go where none of my ants already were was pretty easy. We find the <strong>N</strong> nearest ants and build a vector from each of them to the current ant. We give each vector a magnitude of 10 (a magic constant) and sum the vectors together to get the vector the current ant should move in. <strong>N</strong> may vary, the larger <strong>N</strong> the better they spread out but this also takes longer, and begins to be noticeable later in the game when you have lots of ants.
+<img class="center" src="/images/GreenTea/02.png"></p>
+
+<p><em>The figure shows how the vectors to the ant (yellow) are summed up to create the vector for the ant (green). This is similar to how molecules of gas interact.</em></p>
+
+<p>Then there was pathfinding. I honestly didn't use Google because I wanted to figure it out myself. My first algorithm ended up greedy, recursive, and admittedly, not very fast. But this was quite good enough in the beginning.</p>
+
+<p><blockquote><p>But the carefree childhood on the open spaces did not last long. Now and then other ants appeared, who could also search for food not just in a straight line but by shorter paths, and for some reason they did not want to live and let live ...</p></blockquote></p>
+
+<p>The second thing I implemented was combat code. The thing is that during the beta the rules deciding combat as well as the attack radius were unstable. Because of that it was necessary to write something more or less universal so that I wouldn't have to rewrite it again. I didn't manage to think of anything better than going through all possible moves for my ants and the opponents ants which could be drawn into a fight. I chose out of all those choices the ones that prevented any enemy move from killing all of my combatants in one fell swoop. If there were more than a few of these "safe" moves, the one that causes the most problems for the enemy is chosen. In short: we seek the most aggressive of the safest moves. These two factors are often mutually exclusive so safety always comes first. Initially the algorithm was configured to fight battles with 7 ants or fewer (counting both my and enemy ants). This is a maximum of 78,125 possible moves. In practice, adjacent ants and water tiles eliminate combinations. When I let there be 8 ants in a battle I was guaranteed to timeout.</p>
+
+<p><blockquote><p>And the ants understood that together they were powerful. And they began to annihilate their enemies, pulverizing them without pity or rage.</p></blockquote></p>
+
+<p>As far as I remember the battle code, together with pathfinding and spreading out directive, led the GreenTea bot to a quick rise to the top of the beta site's rankings. It was the rare opponent that could hold out against the crazy micro which just worked amazingly, and no wonder, it was looking at all the possible moves! For battle groups of >8 ants there was a primitive algorithm but it got used so infrequently because on the revealed map large numbers of ants rarely clumped together up to that point in time (more on that later).</p>
+
+<h1>Improvement</h1>
+
+<p>Someone could disagree with me, but it seems to me that Ants differs from Planet Wars in that improvement is significantly easier. Because of this, when you watch the replay - its immediately apparent where the bot made a mistake. Here's pretty much how most of the improvements happened: watching the replay "Aha - here it was a little dumb and lost an ant, here then went wonky and gathered into a clump when it should have spread out in different directions and look for food ..." Planet Wars required tough math and accurate scoring. One mistake and it was all over. Here you can make a few mistakes, its possible to make a few good turns and even a few OK turns without causing you to lose. But all the same the person who wins is the one who makes fewer mistakes.</p>
+
+<p>Looking at my Google Doc spreadsheet I made 76 improvements, each of which was tested on different maps and different food spawning methods and showed between a 3 and 15% in the number of victories in a 1 vs 1 battle with the previous version, and between 1 and 10% improvement in FFA battles. I will describe the most significant improvements to the bot made from the beginning. Why not start once the rules of the game were finalized? Because from that point many important improvements were made which influenced the excellent play on the open maps, even with holes as a part of the game.</p>
+
+<h2>u4. Improving Pathfinding - Paths should look more like a straight line</h2>
+
+<p>Heh. My first clumsy attempt at pathfinding found the shortest path but it looks slightly off.
+<img class="center" src="/images/GreenTea/03.png"></p>
+
+<p><em>Red - original path found to food. Green - correct path. Although its not obvious that they are the same length, both paths have the same lengths when measured using tiles.</em></p>
+
+<h2>u6. When searching for food and enemies use the actual shortest distance</h2>
+
+<p><img class="center" src="/images/GreenTea/04.jpg"></p>
+
+<p><em>Old version of bot incorrectly used the red path as the distance when the green path is the actual distance to the food. In this case we would have wasted some moves going towards the food when the enemy will get there first.</em></p>
+
+<p>(Ed. Apparently he switched from using the Manhattan distance, which the starter bot provided, to something like breadth first search, although apparently not that. BFS started at u56.)</p>
+
+<h2>u9. Combat Algorithm</h2>
+
+<p>Read about it above.</p>
+
+<h2>u11. Collect food before attacking</h2>
+
+<p>Since the more ants you have the faster you can grow, it is critical to eat food as soon as possible to get ants as fast as possible. That is why it is important, even in the middle of a fight, to pull one ant out of the fight to go pick up the food.</p>
+
+<h2>u14. The Combat Algorithm prunes duplicate positions. </h2>
+
+<p>This significantly sped up search allowing battle groups to be up to 8 ants.</p>
+
+<h2>Implementation</h2>
+
+<p>Wrote a hash function that takes all positions of moved ants and produces an integer i.e. hash value of the position. Then I keep track of all executed positions in a HashSet and before executing a position further, the algorithm checks to make sure the position has not been executed before. Skipping execution when it had seen the position before saved a lot of time. unfortunately the hash function was not unique enough, i.e. there where some collisions when it thought it had seen the position before when it had not and should have considered the position but ignored it. This completely broke the algorithm and the bot made stupid moves. In the end I had to return to keeping a complete listing of positions and only allowing 7 ants in a battle group.</p>
+
+<h2>u18. Use 4 ants to generate the spreading vector instead of 3</h2>
+
+<p>This looks much better and smoother and pretty significantly improved winning percentage.</p>
+
+<h2>u21. The Combat Algorithm started keeping track of ants who had moved and who spawned over holes</h2>
+
+<p>An ant who moved is for example one went after food instead of fighting.</p>
+
+<h2>u25. Pathfinding Algorithm modification</h2>
+
+<p>Removed recursion from pathfinding in a way that seemed intuitive to me. In retrospect it seems to have become very similar to <a href="http://en.wikipedia.org/wiki/A*_search_algorithm">A*</a> :)</p>
+
+<h2>u26. Timeout Preventing Code</h2>
+
+<p>In a few places the code checks how much time is left. If more than 90% of the time has been used, then an exception is thrown that when caught tidily completes the turn.</p>
+
+<h2>u27. Better choice of which square to move to eat a piece of food</h2>
+
+<p>If you can move closer to another piece of food or further from your ants prefer that way to eat the piece of food. Quite a subtle improvement. Separately considers from which side to approach the food to eat it.
+<img class="center" src="/images/GreenTea/05.png"></p>
+
+<p><em>Moving to the right is better for two reasons. 1) This brings it closer to the other piece of food, which the other ant isn't moving towards. 2) This distances him from your other ant, at the same time extending your visible territory.</em></p>
+
+<h2>u29. If the enemy will reach the food first, then don't move toward that food. If there will be a fight over the food send another ant in pursuit.</h2>
+
+<p><img class="center" src="/images/GreenTea/06.png"></p>
+
+<p><em>If just the nearest ant goes towards the food and the opponent also moves towards the food, they are assured mutual annihilation, while our other ant sits idly by. The second ant should move as close to the food as soon as possible.</em></p>
+
+<h2>u35. Avoiding Enemy Ants, if there are more than two Dangerous enemy bots.</h2>
+
+<p>If a bot is being pressured from all sides then engaging in even trades is a very bad idea, since all of the bot's forces would be spread between multiple opponents. On the other hand, passive bots will grow but eventually peter out. One should only attack if it is 100% safe.</p>
+
+<p>And now we've arrived to the tail end of the beta, a phase that reminds everyone of the dominance of the German bot <strong>mathis</strong>. This bot was good managing large, concentrated groups of ants in battle. He lined them up in a chain of ants, while preventing random losses (from, say, an ant moving one step too close to the enemy and getting himself killed). And then this line would simply crush everyone. My combat system, however, was unable to cope because it couldn't handle large groups of ants working together.
+The simplified system of combat wasn't getting me anywhere. Ants on my front line acted like a disorganized herd and made a lot of mistakes. And yet it did so well at spreading ants around inside its own territory. In addition he separated himself by how effectively he crushes ants which managed to get within his territory. It turns out that mathis worked out where the zone of complete safety was and constantly tried to increase its size. At that point in time I was unable to construct as brutal tactics. From my end there were many small improvements that are not worth mentioning.</p>
+
+<h1>End of the Beta and Start of the Official Google AI Challenge - Ants 2011</h1>
+
+<p>With the official start there were two new things: holes and a new type of map, the maze, which created a bunch a problems for me:</p>
+
+<ul>
+<li><p>Spreading my ants out by vectors didn't work on mazes. Mostly the ants ended up getting killed near the hill.</p></li>
+<li><p>Experienced severe slowdown as soon as the number of ants got larger than 50. This was because almost all pathfinding, which there was a lot of, didn't finish quickly, and got confused and lost.</p></li>
+</ul>
+
+
+<h2>Improvements of Version 2.1</h2>
+
+<p>A new method of spreading out in the maze. This was a nightmare, but worked better than the vectors in addition to not slowing down ...
+Here's how the improvement worked:
+Create a map of what is visible. Each tile corresponds to a tile on the full map. Every turn I incremented the value at visible tiles by 1 and kept these values between turns. Over time, places where ants have been frequently will have quite large values. And when an ant is choosing where to go, it will prefer a tile with a smaller visibility score, i.e. that has been seen fewer times, and then ants don't sit around in one place but try and expand away from the hill.</p>
+
+<p>The main thing was to do this only for maze maps. I decided if a map was a maze map by gathering statistics for all the pathfinding and if the found shortest paths ran into lots of obstacles and there weren't many straight-ish paths I assumed it was a maze.</p>
+
+<h2>Hole Defense</h2>
+
+<p>My hole defense was not very intricate: as soon as enemy ants were within <em>N</em> moves of the hole, all of my nearby ants would throw themselves at the enemy. For a long time <em>N</em> was 25, near the end I changed it to 15. I might have been worth making even smaller.</p>
+
+<ol>
+<li>If you have only one hole left</li>
+<li>If you have a lot of ants on the map.</li>
+</ol>
+
+
+<p>On a map where you start with more than one hole it's not necessary to defend all of them from the start. A bot that does that wastes a lot of time, will miss out on food collection and get crushed by the enemy who now has a large numerical advantage.
+So, I defend my holes if I have 1 hole or the number of my ants is greater than <em>C</em> times the number of holes I have (where C is a magic constant equal to 10).</p>
+
+<h2>u54. New Type of Attack - "Medium"</h2>
+
+<p>This was the first attempt to do something better than a simple attack in order to compete with mathis.</p>
+
+<h2>u56. Improved Movement Towards Goals</h2>
+
+<p>Now examines the shortest path to all free ants within a certain area of accessible tiles. You can call it the embryo of <a href="http://en.wikipedia.org/wiki/Breadth-first_search">breadth-first search (BFS)</a>.</p>
+
+<h2>u70. 1) Many Performance Tweaks 2) Food Gathering Tweak</h2>
+
+<p>When going for a piece of food, the ant can go for a more distant cluster of food than the closest, if it will move him away from the main cluster of ants.
+<img class="center" src="/images/GreenTea/07.png"></p>
+
+<p><em>In this case it is better to go for the further away food.</em></p>
+
+<h1>Nearing the Finish Line</h1>
+
+<p>One week left before the finals. On both the official and tcp server a German bot named <strong>xathis</strong> is dominating. His 1st version arrived about week after the official start and immediately took the lead. Then, almost at the end of the competition his second version has appeared - and broke away from everyone again by a large margin. And where did mathis disappear to? <em>(Ed. xathis' name is Mathis Lichtenberger)</em></p>
+
+<p>I used a week of my vacation time from work to spend on one last push.</p>
+
+<p>The drawback of the current method of distributing ants in a maze with a comprehensive map was that often ants are pushed into dead ends and could not get out of them. This was a natural consequence of the method chosen; the way out of the dead end is already well explored by other ants and its impossible to get out with the same method that got you there.</p>
+
+<p>I decided to try  a much bigger emphasis on breadth first search. The idea is that there are a few types of goals. Each goal has its own priorities. Around a goal of one type waves spread out in the search, increasing the importance of the priority in the cell but by a diminishing amount the further away it is from the source, using the inverse of the square of the distance from the target.
+Types of Objectives:</p>
+
+<ul>
+<li><p>Boundary point on the edge of visible region - they lead to unexplored territory</p></li>
+<li><p>Enemy ants</p></li>
+<li><p>Enemy holes</p></li>
+<li><p>Points which haven't been seen for more than 20 turns, but are found in the already explored region. There could be food there which we should gather.</p></li>
+</ul>
+
+
+<p>In that way after 4 rounds of BFSes the map has been filled with priorities which increase the closer a tile is to one (or a few) of the goals. All that is left to do is take each ant and move it towards the most high priority tile in its view radius. This improvement led to a truly tangible improvement in strength. This despite the fact that I did not have time to optimize the coefficients for each type of goal.</p>
+
+<h2>Final Weekend Before the Final</h2>
+
+<p>These were the most active days for past few months. I tried to figure out the best system for battle with large numbers of ants. I moved forward with the help of unit tests. I found in the replays situations where I made mistakes, make a corresponding unit test and tried to fix the problem. The code turned out horrible, but I managed to fix 15 problems and not regress on any earlier ones :).  This set of improvements game win a 60-70% win rate against the previous version 1vs1. And up to a 10% improvement in a free for all. Looking at the fact that the new version managed to gain second place on the official server, I held out great hopes before the start of finals!</p>
+
+<h2>What I Ran Out of Time To Do</h2>
+
+<p>All the same the final battle system ended up not nearly as good as xathis'. In order to see this, all one needs to do is watch a few games against him.
+I also don't like I follow already captured territory in search of food when spreading out for maze maps mixed with the map of priorities. It seems that it would have been better to use a uniform grid coverage system like xathis or tetrapohedron. It would be nice if scouts would dynamically join battles if needed.</p>
+
+<p>It's time to finish this up. The article ended up not a small one. (Ed. I'll say) :)</p>
+
+<p>I want to thank Roma Ishenko :), my work colleague, for helping me brainstorm over lunch, thinking over new opportunities for improvement.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AI Challenge Code Dump]]></title>
+    <link href="http://hacklash.github.com/blog/2011/12/19/ai-challenge-code-dump/"/>
+    <updated>2011-12-19T10:29:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/12/19/ai-challenge-code-dump</id>
+    <content type="html"><![CDATA[<p>Phew. The Google AI contest closed for entries last night. I had been working on a bot since the start of the contest, but I gave it up after running into timeout issues that I couldn't track down.</p>
+
+<p>With 36 hours to the deadline I jumped back into the game, read through the forums and decided to try a different approach than I had been pursuing. The code is ugly and there are almost no comments (none if you count only those that will make sense to anyone else) but I thought that this blog could use some more code on it, and some of you may be interested in how my diffusion approach looks.</p>
+
+<!-- more -->
+
+
+<p>With all those caveats and hedging, here you go:</p>
+
+<p><div><script src='https://gist.github.com/1518554.js?file=MyBot.java'></script>
+<noscript><pre><code>import java.io.IOException;
+import java.util.*;
+
+/**
+ TODO   if closeToFood: efficiently eat food 
+        if closeToFrontier: explore if notCloseToFrontier: either move to conflict or to (nearest) part of external border 
+        if closeToEnemyAnt: 
+            if more numerous: attack else: flee and summon help
+        if closeToEnemyAnthill: strike or surround 
+        defend own ant hill (keep it watched and then call in help) 
+        if reserves very large suspend food gathering and interior intelligence maintenance
+ */
+
+/*
+Version Name Ideas: Antilles*, Bossk*, Carth* /Chewie/Cracken, Dengar, Exar/Ebe, Fett/Fortuna, Greedo/Grievous, Han/Horn,
+Ig88, Jabba, Katarn/Kenobi/Kun, Lars/Leia/Lobot, Maul/Mothma, Organa, Porkins, Quadrinaros, Rendar/Ruhk,
+Solo, Tarkin, Vader, Wicket/Windu, Xizor, Yoda, Zorba/Zuckuss
+ */
+ 
+/* This Version is Carth */
+public class MyBot extends Bot {
+    public MyBot() {
+    }
+
+    public static void main(String[] args) throws IOException {
+        new MyBot().readSystemInput();
+    }
+
+    Map&lt;Tile, Integer&gt; visitedAgo = new HashMap&lt;Tile, Integer&gt;();
+    Set&lt;Tile&gt; seenFood = new HashSet&lt;Tile&gt;();
+    Set&lt;Tile&gt; seenEnemyHills = new HashSet&lt;Tile&gt;();
+
+    @Override
+    public void doTurn() {
+        Ants state = getAnts();
+        Board.setAnts(state);
+
+        findExloreTargets();
+
+        double[][] diffArray = new double[Board.getRows()][Board.getCols()];
+
+        Map&lt;Tile, Integer&gt; consts = new HashMap&lt;Tile, Integer&gt;(visitedAgo);
+
+        for (Tile ea : state.getEnemyAnts()) {
+            for (Tile ma : state.getMyAnts()) {
+                if (state.getDistance(ea, ma) &lt;= 4) {
+                    List&lt;Aim&gt; possibleDirs = state.getDirections(ma, ea);
+                    Tile escapeTo;
+                    if (Board.canIssueOrder(ma, possibleDirs.get(0))) {
+                        escapeTo = Board.getTile(ma, Aim.getOpposite(possibleDirs.get(0)));
+                        consts.put(escapeTo, 10000);
+                    } else if (possibleDirs.size() &gt; 1 &amp;&amp; Board.canIssueOrder(ma, possibleDirs.get(1))) {
+                        escapeTo = Board.getTile(ma, Aim.getOpposite(possibleDirs.get(1)));
+                        consts.put(escapeTo, 10000);
+                    }
+                }
+            }
+        }
+
+
+        for (Tile a : state.getMyAnts()) consts.put(a, 0); //TODO don't do as const?
+        for (Tile mh : state.getMyHills()) consts.put(mh, 0);
+        for (Tile w : Board.waterTiles) consts.put(w, 0);
+
+        final int FOOD = 5000;//TODO use turns of hillAnts left to decide value of getting food
+        for (Tile f : seenFood) consts.put(f, FOOD);
+
+        final int E_HILL = 9000000;
+        for (Tile eh : seenEnemyHills) consts.put(eh, E_HILL);
+
+        final int E_ANT = 100;
+        for (Tile ea : state.getEnemyAnts()) consts.put(ea, E_ANT);
+
+        for (int r = 0; r &lt; Board.getRows(); r++) {
+            for (int c = 0; c &lt; Board.getCols(); c++) {
+                Tile t = new Tile(r, c);
+                diffArray[r][c] = consts.containsKey(t) ? consts.get(t) : 0;
+            }
+        }
+
+        final int ITERS = state.getViewRadius2() * 7;
+        for (int i = 0; i &lt; ITERS; i++) {
+            for (int r = 0; r &lt; Board.getRows(); r++) {
+                for (int c = 0; c &lt; Board.getCols(); c++) {
+                    Tile t = new Tile(r, c);
+                    if (!consts.containsKey(t)) {
+                        double total = 0;
+                        for (Aim a : Aim.allDirections()) {
+                            Tile neighbor = Board.getTile(t, a);
+                            total += diffArray[neighbor.getRow()][neighbor.getCol()];
+                        }
+                        diffArray[r][c] = total / 4;
+                    }
+                }
+            }
+        }
+
+        for (Tile mh : state.getMyHills()) {
+            diffArray[mh.getRow()][mh.getCol()] = Double.NEGATIVE_INFINITY;
+        }
+
+        List&lt;Tile&gt; myAnts = new ArrayList&lt;Tile&gt;(state.getMyAnts());
+        for (Tile ma : myAnts) {
+            double[] choices = new double[5];
+            choices[0] = Board.canIssueOrder(ma) ? diffArray[ma.getRow()][ma.getCol()] : Integer.MIN_VALUE;
+            int i = 1;
+            for (Aim a : Aim.allDirections()) {
+                Tile nt = Board.getTile(ma, a);
+                choices[i] = Board.canIssueOrder(ma, a) ? diffArray[nt.getRow()][nt.getCol()] : Integer.MIN_VALUE;
+                i++;
+            }
+            double maxV = choices[0];
+            int maxI = 0;
+            for (i = 1; i &lt; 5; i++) {
+                if (choices[i] &gt; maxV) {
+                    maxV = choices[i];
+                    maxI = i;
+                }
+            }
+            switch (maxI) {
+                case 1:
+                    Board.issueOrder(ma, Aim.NORTH);
+                    break;
+                case 2:
+                    Board.issueOrder(ma, Aim.EAST);
+                    break;
+                case 3:
+                    Board.issueOrder(ma, Aim.SOUTH);
+                    break;
+                case 4:
+                    Board.issueOrder(ma, Aim.WEST);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void findExloreTargets() {
+        Set&lt;Tile&gt; curSeenFood = new HashSet&lt;Tile&gt;();
+        for (Tile sf : seenFood) {
+            if (!Board.isVisible(sf)) {
+                curSeenFood.add(sf);
+            }
+        }
+
+        Set&lt;Tile&gt; curSeenHill = new HashSet&lt;Tile&gt;();
+        for (Tile seh : seenEnemyHills) {
+            if (!Board.isVisible(seh)) {
+                curSeenHill.add(seh);
+            }
+        }
+
+        for (Tile eh : Board.getEnemyHills()) {
+            curSeenHill.add(eh);
+        }
+        seenEnemyHills = curSeenHill;
+
+        for (int r = 0; r &lt; Board.getRows(); r++) {
+            for (int c = 0; c &lt; Board.getCols(); c++) {
+                Tile t = new Tile(r, c);
+                if (Board.isVisible(t)) {
+                    visitedAgo.remove(t);
+                    if (Board.getTileType(t) == TileType.FOOD) {
+                        curSeenFood.add(t);
+                    }
+                } else if (Board.afaikIsWalkable(t)) {
+                    int newVal = visitedAgo.containsKey(t) ? visitedAgo.get(t) + 1 : 1;
+                    visitedAgo.put(t, newVal);
+                }
+
+            }
+        }
+        seenFood = curSeenFood;
+    }
+}</code></pre></noscript></div>
+</p>
+
+<p>That isn't the only code I modified, a majority of the modified code is in two more files, Board.java and Assigner.java, plus a small tweak to Aim.java (adding the <code>allDirections</code> method). If you need to see them check out <a href="https://gist.github.com/1518554">the full gist</a>.</p>
+
+<p>Board.java is a static version rewrite of Ants.java, a sort of utility class. Perhaps its not the best coding practice to make it static so I didn't have to pass it around, but I was in a hurry and by definition the code would only live for 34 hours (making the code on the server, sort of Zombie code).</p>
+
+<p>The Assigner.java class was my attempt at a breadth-first search solution. It was more efficient at getting food, but timed out too much and so I dumped it instead of trying to sort out its performance.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ants AI Challenge: Getting Started]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started/"/>
+    <updated>2011-11-02T15:48:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started</id>
+    <content type="html"><![CDATA[<p>The Ants AI Challenge is an very cool competition to test and improve your coding chops. Essentially you write a program to control a colony of ants like the Bugger Queen from Ender's Game would.</p>
+
+<p>The official website does a pretty good job of getting you started, but I'll give you some reccomendations having recently run through the startup process.</p>
+
+<!-- more -->
+
+
+<h2><a href="http://aichallenge.org/quickstart.php">Go Through the 5 Minute Quickstart Guide</a></h2>
+
+<p>This will get you through the account setup process and show you how to upload your bot to be tested after you've modified it.</p>
+
+<h2><a href="http://aichallenge.org/ants_tutorial.php">Go Through The Tutorial</a></h2>
+
+<p>This will help you develop simple versions of most of the tactics you'll likely be working on for the rest of the contest:</p>
+
+<ul>
+<li>Avoiding Collisions</li>
+<li>Gathering Food</li>
+<li>Exploring the Map</li>
+<li>Managing New Ant Arrival through the Ant Hills</li>
+<li>Exploring the Map</li>
+<li>Attacking and Defending Hills</li>
+<li>Battles with other Ants</li>
+<li>Pathfinding</li>
+</ul>
+
+
+<h2><a href="http://aichallenge.org/using_the_tools.php">Download and Learn How to Use the Tools</a></h2>
+
+<p>As you build and improve your bot you'll want to make sure that it still works and is improving. The simplest way to do that is to run a game using the tools. Actually the tutorial will go over this, but its important enough to say twice.</p>
+
+<p>If your bot is crashing you'll want to see what went wrong, but its not obvious at first glance how to do that. What you need to do is add the -E option to your game playing script. This will print out any errors (and any debug information piped to stderr) into the game_logs folder by bot. This has been extremely helpful for me.</p>
+
+<h2>Some Other Cool Resources</h2>
+
+<p>Just keep in mind that I haven't dug into some of these yet.</p>
+
+<p><a href="https://github.com/aichallenge/aichallenge/tree/epsilon/ants/dist/starter_bots">Better starter bot code</a> - Some changes have been made to the starter bots in the code repository, but haven't yet been pushed to the zip files the website gives out. I know for a fact that the Java version is missing some useful code (seen vs unseen tracking). <a href="https://github.com/aichallenge/aichallenge/zipball/epsilon">Download a zipfile</a> or tarball if the code looks different than what you've got.</p>
+
+<p><a href="https://github.com/j-h-a/aichallenge/blob/vis_overlay/VIS_OVERLAY.md">A better visualizer</a> - so that you can see what your bot is thinking without having to resort to print statements. Very cool.</p>
+
+<p><a href="http://forums.aichallenge.org/viewtopic.php?f=25&amp;t=2007">Tcp Servers</a> - Is the official server playing games too slow for you? Run games on your own computer playing other bots doing the same thing through a tcp server. All the best bots are doing it .... :)</p>
+]]></content>
+  </entry>
+  
+</feed>

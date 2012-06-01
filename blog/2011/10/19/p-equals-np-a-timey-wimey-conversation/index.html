@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>P=NP: A Timey Wimey Conversation - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="If you are baffled by the discussion about P=NP and what it all means, that&#8217;s ok.
+I was too. Luckily for you and past me this post can &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2011/10/19/p-equals-np-a-timey-wimey-conversation">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">P=NP: A Timey Wimey Conversation</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-10-19T20:33:00-06:00" pubdate data-updated="true">Oct 19<span>th</span>, 2011</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>If you are baffled by the discussion about P=NP and what it all means, that&#8217;s ok.
+I was too. Luckily for you and <em>past me</em> this post can communicate with both of you
+through time and space.</p>
+
+<!-- more -->
+
+
+<p>Let&#8217;s get cracking then. Computer scientists do not know whether P = NP or P != NP.</p>
+
+<p><em>Hold on a second, isn&#8217;t that trivial? Isn&#8217;t that the same thing as finding out
+whether N = 1 or not, or maybe if P = 0 or not? Wait, what do N and P stand for
+anyways?</em></p>
+
+<p>That last one is a really good question. N and P aren&#8217;t variables, so you can&#8217;t
+solve for them algebraically like you tried to do there. They are actually
+abbreviations for different groups of problems. So N stands for nondeterministic
+and P for polynomial.</p>
+
+<p><em>Ok, so you&#8217;re saying that there are two groups of problems, polynomial and
+nondete&#8230; whatever polynomial problems and that computer scientists don&#8217;t know
+if these groups of problems are the same or not? This still sounds easy.
+If there are different categories aren&#8217;t they by definition not the same?</em></p>
+
+<p>Hmmm &#8230;. I guess it might be important to explain the basics of time complexity.
+Time comple-</p>
+
+<p><em>Time complexity? Like how time travel stories get really complex and stop making
+sense if you think about them too much?</em></p>
+
+<p>Heh, not quite, but speaking of time travel stories have you seen Primer?</p>
+
+<p><em>No</em></p>
+
+<p>You&#8217;ve at least read Heinlein&#8217;s <a href="http://pot.home.xs4all.nl/scifi/byhisbootstraps.pdf">By His Bootstraps</a>?</p>
+
+<p><em>No. You know I haven&#8217;t.</em></p>
+
+<p>Oh, right.</p>
+
+<p><em>Look you&#8217;re the one who contacted me. Let&#8217;s get on with this if you insist.</em></p>
+
+<p>Alright. Time complexity means that some problems can be solved faster than others.
+<em>Sure.</em> The problems that can be solved quickly are also part of the set of problems
+that take longer to solve because you could take longer to solve the problem if you
+wanted to. To get more concrete, problems in P can be solved in polynomial time
+on a deterministic computer, and problems in NP can be solved in polynomial time
+on a nondeterministic computer.</p>
+
+<p><em>Hold on. You keep mentioning &#8220;determinism&#8221; but I have no clue what that is supposed to mean.</em></p>
+
+<p>Hmmm &#8230;</p>
+
+<p>Well first of all determinism is best explained with its fraternal twin nondeterminism. As you know, an algorithm is a series of steps that when followed produce a consistent result. <em>I guess I do now.</em> Ok, well imagine that there is a choice in those series of steps, like a fork in the road, but only one path leads to your desired result. A deterministic computer would pick one of the paths somehow and try that path. Eventually it might run into a dead end and decide that it should have taken the other path and will come back and try that one.</p>
+
+<p>Now this is where things get a little weird, a nondeterministic computer works almost the same except that it has a perfect, temporarry cloning machine. When it gets to a fork in the road it doesn&#8217;t even make a choice it makes a perfect copy of itself, including another cloning machine and one copy goes down one path and the other down the second. When one of the copies finds the answer he shoots a flare into the air (letting the computer&#8217;s operator know that it has an answer) and all the other copies disappear.</p>
+
+<p>Now you could imagine that with all those free copies you do a lot more work in the same amount of time. There&#8217;s only one problem though, as you might have guessed we have no really good ideas for creating this magical cloning device. The only nondeterministic
+computer exists in Theory Land, a magical place Computer Scientists like to pretend
+exists. <em>Why?</em> &#8230; Because it lets them focus on the essential parts and not all the
+tricky implementation details when coming up with new ideas. Unfortunately for us,
+our friend the nondeterministic computer doesn&#8217;t seem likely to leave Theory Land
+anytime soon.</p>
+
+<p><em>Then why talk about it?</em></p>
+
+<p>Well, NP problems can be solved on a deterministic computer, which we do
+have in the real world. This just takes much longer than to solve problems from P. A deterministic computer has to do all the work himself, take all the paths until he gets an answer.
+In fact as soon as your problem is bigger than a toy example, the time to solve the
+problem grows so quickly that solving it is impractical.</p>
+
+<p><em>Is there any way for a computer to solve large versions of those problems?</em></p>
+
+<p>Well, if you don&#8217;t have to get the 100% accurate solution there are often ways to
+get slightly imprecise answers much quicker than it would take to find the perfect solution.
+The point is that finding the exact solution very quickly becomes impractical.
+If P=NP though, we have proven that there is an easy way to solve all these problems.</p>
+
+<p><em>Isn&#8217;t that a good thing though?</em></p>
+
+<p>For some things, absolutely! For instance we could improve shipping and infrustructure
+efficiency if we could solve the <a href="http://en.wikipedia.org/wiki/Travelling_salesman_problem">travelling salseman problem</a>. There would be some
+problems though. We rely on the fact that some problems are hard in order to keep
+your credit card number and other sensitive data safe when you send it over the
+internet.</p>
+
+<p><em>Come on, how often do I do that?</em></p>
+
+<p>Ok, imagine a world without Amazon.</p>
+
+<p><em>My book selection! And I&#8217;d have to actually get off my butt and go somewhere,
+like &#8230; Barnes and Noble I guess. No thanks.</em></p>
+
+<p>I know exactly how you feel. <em>Rolls eyes.</em> A world where encryption
+can&#8217;t be trusted or can be easily broken may be a step backwards.</p>
+
+<p><em>I guess I can see why finding out that P=NP might be important. You would have
+to implement some sort of disaster plan in order to prevent an e-commerce collapse.
+Speaking of disaster plans do you have Zombie plan yet?</em></p>
+
+<p>Nope, I just kind of made it up as I went along. <em>What!?!</em> Uhh &#8230; nevermind. I don&#8217;t
+have much time left before this connection closes &#8230;</p>
+
+<p><em>And this is what you choose to tell me? Can&#8217;t you at least throw out some stock
+ticker symbols?</em></p>
+
+<p>No, shut up and let me finish one last thing. <em>But &#8230;</em> Shush! I forgot to tell
+you how people try to prove P=NP or P!=NP. Proving that a problem in NP is also
+P does get you faster solution for that problem, but that just means we mislabeled
+the problem in the first place. NP-complete problems are a subset of NP and have been proven equivalent to each other. You can actually translate each of them into any other NP-complete problem
+which is cool. <em>Is it?</em> Shush.</p>
+
+<p>NP-complete problems have the property that if you can prove that one NP-complete problem is actually in P then you have proven that all NP-complete problems are in P and actually at the same time, that all NP problems
+are also in P.</p>
+
+<p><em>I guess that is kind of cool. But I still don&#8217;t see why proving either P=NP or
+P!=NP is important.</em></p>
+
+<p>Actually it may not be. Some people think it is pretty important, or at least
+prestigious and spend many hours trying to prove one of the two theorems. Every few
+years someone thinks they have it solved, only to have missed something. <a href="http://en.wikipedia.org/wiki/Moshe_Y._Vardi">Others</a>
+feel <a href="http://cacm.acm.org/magazines/2010/11/100641-on-p-np-and-computational-complexity/fulltext">finding out one way or the other may actually not be that important</a>.</p>
+
+<p><em>You really could have picked something more valuable for us both than this.</em></p>
+
+<p>Hey, it&#8217;ll save you from some confusion, and it is an important theory from Computer
+Science, which you are studying.</p>
+
+<p><em>I am?</em></p>
+
+<p>Uhh, I&#8217;m almost out of time, so before I go, here&#8217;s a piece of paper with the
+essentials in case you forget. Farewell and good luck!</p>
+
+<h3>The Note</h3>
+
+<blockquote><ul>
+<li>P and N are not variables</li>
+<li>P and NP are abbreviations for the names of two different classes of problems, (polynomial and nondeterministic polynomial)</li>
+<li>P is a subset of NP. Problems in P are also in NP but as far as we know not vice versa.</li>
+<li>Problems in P likely have practical solutions while problems in NP have no practical exact solutions.</li>
+<li>If P=NP all problems that a computer can solve have a fairly easy solution (whether we curently know that solution yet or not)</li>
+<li>This would be good for some things (transportationg and shipping among others) and bad for others (encryption and e-commerce)</li>
+<li>NP-complete problems are a subgroup of NP and are all equivalent to each other. They are important because they can can be used to prove whether P=NP or P!=NP. Proving that one NP-complete problem is in P is equivalent to proving all NP problems are in P.</li>
+</ul>
+
+
+<p>AAPL Buy $83 Sell $424</p></blockquote>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2011-10-19T20:33:00-06:00" pubdate data-updated="true">Oct 19<span>th</span>, 2011</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/theoryland/'>TheoryLand</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+      
+        <a class="basic-alignment right" href="/blog/2011/10/26/expand-your-mind-with-your-next-programming-language/" title="Next Post: Expand Your Mind With Your Next Programming Language">Expand Your Mind With Your Next Programming Language &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/">GreenTea's 2nd Place Entry Postmortem Translated by Hand</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2011/10/19/p-equals-np-a-timey-wimey-conversation/';
+        var disqus_url = 'http://hacklash.github.com/blog/2011/10/19/p-equals-np-a-timey-wimey-conversation/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

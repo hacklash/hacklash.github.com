@@ -1,0 +1,1295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Trevor Oakes]]></title>
+  <link href="http://hacklash.github.com/atom.xml" rel="self"/>
+  <link href="http://hacklash.github.com/"/>
+  <updated>2012-06-01T10:19:03-06:00</updated>
+  <id>http://hacklash.github.com/</id>
+  <author>
+    <name><![CDATA[Trevor Oakes]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Intro to Deforestation and Macros]]></title>
+    <link href="http://hacklash.github.com/blog/2012/03/17/intro-to-deforestation-and-macros/"/>
+    <updated>2012-03-17T21:39:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2012/03/17/intro-to-deforestation-and-macros</id>
+    <content type="html"><![CDATA[<p>My new project is to write a deforestation macro for Racket. Since I&#8217;ll be spending a lot of time on that in the next few months and there will probably be a corresponding amount of related content here on the blog, for the rest of the post I&#8217;ll unpack that sentence for you so you can follow along in the future. Read on to get a grounding in deforestation and Racket macros.</p>
+
+<!-- more -->
+
+
+<h2>Racket</h2>
+
+<p>Racket is a member of the Lisp family of languages, more recently diverging from Scheme. Racket takes that core and adds more interesting continuations, macros and an emphasis on real programs and practical research. That means that it has tons of libraries. Actually Racket is more like a language implementation platform, with a primary language <code>#lang racket</code> but there is also a lazy language, standards compliant versions of scheme, a functional reactive programming language (a functional abstraction over gui programming), learning languages and even a logic programming language. And its easy to create your own.</p>
+
+<p>One way is with macros, and Lispy languages are really great at doing macros. One reason is that they are homoiconic, i.e. the representation of the program is actually a data structure in the same language. For lisp this means lists. Perhaps you&#8217;ve heard the idea that code is data. If not, you&#8217;ve probably never worked on a compiler or interpreter. Remember that a program uses code to transform input data to output data. Now think about a compiler, it is a program that takes in code and produces code. The code you pass to gcc <em>is</em> data to gcc. Code is just data. Essentially homoiconicity means that not only is code data, but data that your own code can understand.</p>
+
+<h2>Macros</h2>
+
+<p>This is where macros come in. Now, I&#8217;d like to be clear at the outset of a section on macros that I am not talking about the abomination that C++ calls macros. I shudder involuntarily at the thought of C++ &#8220;macros&#8221;.</p>
+
+<p>Macros look at your code as data and transform it into a different program. Essentially they allow you to create your own language, Racket+, which the macros you created, like a compiler, transform the rest of your program into Racket. Then Racket eventually interprets/compiles your program to the native platform. Lots of Racket features are actually implemented using macros so it&#8217;s macros <em>almost</em> all the way down.</p>
+
+<p>Language extensions to the language in the language? Sign me up. Actually the point of this project is for me to learn macros since the best way to learn them is to write them.</p>
+
+<p>What I&#8217;ve described so far applies to Scheme, Lisp and even <em>shudder</em> C++ macros. The problem with C++ macros is that they perform text to text transformations. This process is error prone and makes me sick inside. Lisp macros manipulate parenthesized expressions of Lisp data, or s-expressions. This is a <em>huge</em> improvement over text manipulation, comparable to the difference between storing all your data in a string that you parse and extract and manipulate versus using actual data structures like arrays, maps, and trees.</p>
+
+<p>This is a big improvement, but definitely not perfect. Lisp macros have a hygiene problem. Apparently &#8220;hygiene&#8221; is a mathematical term, but what it means is that names defined or used in a Lisp macro can clash with names defined in the outer program, by other macros, or even the same macro used multiple times. If two macros who work in isolation are used together, there is no way to know for sure that they will work together without checking the source code. Sure, there are workarounds, gensyms, packages, etc. but why deal with that when there is a better system: hygienic macros from Scheme or Racket?</p>
+
+<p>Essentially hygienic macros extend the idea of lexical scope to macros. Lexical (or static) scope is the idea that it should be obvious from looking at nearby code what a name means. In languages with first-class functions or macros this is not trivial property to have so some don&#8217;t bother, but lexical scope is good for the same reason that avoiding global variables and unnecessary mutation are good. They make your programs easier to reason about.</p>
+
+<p>Racket takes the idea of hygiene even further than Scheme. As for how exactly I&#8217;m not yet exactly clear. Something about safe ways to violate the hygiene rules but still stay squeaky clean, making them more flexible/powerful. The commenters on <a href="http://www.randomhacks.net/articles/2002/09/13/hygienic-macros">Why Hygienic Macros Rock</a> discuss it a little bit. I&#8217;ll have to get back to you on why, or feel free lay down the law in the comments.</p>
+
+<h2>Deforestation</h2>
+
+<p>The point of deforestation, in the computer science sense, is to make functional abstractions efficient. By focusing on saying what you want and not how it should be done you can write clearer more concise programs:</p>
+
+<figure class='code'><figcaption><span>Functional Version  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">square</span> <span class="n">n</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span>
+</span><span class='line'><span class="nf">sumOfSquaresTo</span> <span class="n">n</span> <span class="ow">=</span> <span class="n">sum</span> <span class="p">(</span><span class="n">map</span> <span class="n">square</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">n</span><span class="p">])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>versus:</p>
+
+<figure class='code'><figcaption><span>The Imperative Version  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">sumOfSquaresTo</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span class='line'>    <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+</span><span class='line'>        <span class="nb">sum</span> <span class="o">+=</span> <span class="n">square</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">sum</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The functional version is more concise and once you learn the basics of functional programming, just as clear. Now before you complain, I realize that you could use the sum function, but it would do something similar with a loop. I lifted the loop out of the sum function because I wanted to make the algorithm&#8217;s performance characteristics obvious.)</p>
+
+<p>Although the functional version wins in conciseness, there is a tradeoff - the simple way to compile it will use two intermediate lists, the numbers from 1 to n and the first n squares, while the imperative version uses no lists (at least in python3, xrange in python 2 would have the same effect). Creating and storing these lists are less efficient than we would hope. Stream fusion is the process of transforming operations on lists that use intermediate lists into fast imperative code behind the scenes. Deforestation is the same process but more general, it also works on tree-like data, and removes intermediate trees, making the code more cpu and memory efficient.
+Strategies like these have been applied the Glorious Haskell Compiler (usually referred to as ghc), but my task is to write a Racket macro to do the same thing.</p>
+
+<p>Since I&#8217;ll be reading and taking notes on deforestation papers, summaries of them will probably pop up here in the future. If you want to get a head start, you overachiever you, here are the papers I will read:</p>
+
+<ul>
+<li><a href="http://scholar.google.com/scholar?cluster=1027879618469354516">Deforestation: transforming programs to eliminate trees</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=6305039901575196405">Stream Fusion: From Lists to Streams to Nothing at All</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=706783204238944503">Declarative Programs: A Deforestation Case Study</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=6051548364855596038">Attribute Grammars and Functional Programming Deforestation</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=9372977837493231928">A short cut to Deforestation</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=7290223101246113498">Towards unifying partial evaluation, deforestation, supercompilation, and GPC</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[First Class and Higher Order Functions]]></title>
+    <link href="http://hacklash.github.com/blog/2012/03/08/first-class-and-higher-order-functions/"/>
+    <updated>2012-03-08T21:24:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2012/03/08/first-class-and-higher-order-functions</id>
+    <content type="html"><![CDATA[<p>In order to expand my mind, I&#8217;ve been exploring different languages, but sometimes I&#8217;ve had to come back to the first language I learned in depth: Java. And when I do, the thing I miss most is first class, higher order functions. That and pattern matching.</p>
+
+<p>Let me show you what I mean:</p>
+
+<!-- more -->
+
+
+
+
+<div><script src='https://gist.github.com/2014986.js?file=fcf.rkt'></script>
+<noscript><pre><code>#lang racket
+(require rackunit)
+
+; A higher order function is simply a function that accepts a
+; function as an argument or returns a function, or even both.
+; Here is a handy higher order function, zipWith:
+(define (zipWith f l1 l2)
+  (if (or (empty? l1) (empty? l2))
+      empty
+      (cons (f (first l1) (first l2))
+            (zipWith f (rest l1) (rest l2)))))
+
+; It takes in a function f and two lists, l1 and l2, and returns
+; a list where the function has been applied to pairs of arguments
+; from l1 and l2. Here is its type:
+;; zipWith ((a b)-&gt;c) list&lt;a&gt; list&lt;b&gt; -&gt; list&lt;c&gt;
+
+; So if know how much candy your kids got on Halloween
+(define kids-candy '(10 13 10 50 17))
+; and you keep track of how much candy you threw away (or ate)
+; to prevent them from getting totally sick
+(define candy-disposed '(2 4 8 5 7))
+; then you can easily figure out how much each  kid has after your tax
+(check-equal? (zipWith - kids-candy candy-disposed)
+              '(8 9 2 45 10))
+
+; Compose is a higher order function that happens to take functions as
+; arguments and return a function
+(define (compose f g) (lambda (x) (f (g x))))
+(define (cube x) (expt x 3))
+(define (cube-root x) (expt x (/ 1 3)))
+
+; Actually, in Racket, zipWith is equivalent to the builtin map
+;; map ( (a0 a1 .. an)-&gt;b list&lt;a0&gt; list&lt;a1&gt; .. list&lt;an&gt; ) -&gt; list&lt;b&gt;
+; so we can show that a function composed with its inverse
+; is like doing nothing to its input (ignoring rounding errors) thus:
+(for ([h (map compose 
+              (list sin cos cube) 
+              (list asin acos cube-root))])
+  (displayln (h 0.5)))
+; 0.5
+; 0.4999999999999999
+; 0.5000000000000001</code></pre></noscript></div>
+
+
+<p>The cool thing about a language with first class functions, like Racket, is that if the language did not provide us with map, we can write zipWith.</p>
+
+<p>But besides that, allowing functions as arguments to and return values from functions allows you to abstract more things than you can without that ability.
+Many design patterns exist because the language does not have first class functions, but because that idea is very useful, people emulate first class functions poorly using object orientation. The visitor pattern, for example, is essentially a fold.</p>
+
+<p>A programmer can emulate first class functions by hand using object orientation, but take a look at an attempt to do what took 7 short lines above in Racket in Java and ask yourself, why not use a language with them in the first place?</p>
+
+<div><script src='https://gist.github.com/2014986.js?file=fcf-attempt.java'></script>
+<noscript><pre><code>public static Function&lt;Double, Double&gt; compose(
+        final Function&lt;Double, Double&gt; f, final Function&lt;Double, Double&gt; g) {
+    return new Function&lt;Double, Double&gt;() {
+        @Override public Double apply(Double x) {
+            return f.apply(g.apply(x));
+        }
+    };
+}
+ 
+@SuppressWarnings(&quot;unchecked&quot;) public static void main(String[] args) {
+    ArrayList&lt;Function&lt;Double, Double&gt;&gt; functions = Lists.newArrayList(
+            new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.cos(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.tan(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return x * x;
+                }
+            });
+    ArrayList&lt;Function&lt;Double, Double&gt;&gt; inverse = Lists.newArrayList(
+            new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.acos(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.atan(x);
+                }
+            }, new Function&lt;Double, Double&gt;() {
+                @Override public Double apply(Double x) {
+                    return Math.sqrt(x);
+                }
+            });
+    for (int i = 0; i &lt; functions.size(); i++) {
+        System.out.println(compose(functions.get(i), inverse.get(i)).apply(0.5));
+    }
+}</code></pre></noscript></div>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[John Carmack on Static Analysis]]></title>
+    <link href="http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis/"/>
+    <updated>2012-03-01T15:22:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis</id>
+    <content type="html"><![CDATA[<p>&#8230; and functional programming.</p>
+
+<blockquote><p>The most important thing I have done as a programmer in recent years is to aggressively pursue static code analysis.  Even more valuable than the hundreds of serious bugs I have prevented with it is the change in mindset about the way I view software reliability and code quality.</p><footer><strong>John Carmack, #AltDevBlogADay</strong> <cite><a href='http://altdevblogaday.com/2011/12/24/static-code-analysis/'>altdevblogaday.com/2011/12/24/&hellip;</a></cite></footer></blockquote>
+
+
+<p>Now if you don&#8217;t know who that is, that&#8217;s ok, but out of the people in industry that I know, which to be fair isn&#8217;t many, John Carmack is the programmer that I repect the most. It&#8217;s not just because he created some very popular games (Doom and Quake for instance) but that he essentially created the western game industry as we know it by creating whole new graphics techniques.</p>
+
+<p>First he wrote the first all-software 2d game engine for Commander Keane, and then he created the whole 3d games genre with Doom. The techniques he developed and even a decent chunk of the code that John Carmack has written lives in practically every 3d western game you&#8217;ve ever played. Wow.</p>
+
+<p>I&#8217;m really glad that Carmack recognizes the importance of static analysis and functional programming languages on code quality, and its good to hear when reasearch we have about software productivity is supported by luminaries in industry. I&#8217;ve started the video where he begins talking about static analysis which goes until 1:12:35.</p>
+
+<p><em>Stay til then and you&#8217;ll hear him recommend Haskell and Ocaml, which makes me smile.</em></p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/4zgYG-_ha28?rel=0&start=3253" frameborder="0" allowfullscreen></iframe>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Programming Languages and Sheet Music]]></title>
+    <link href="http://hacklash.github.com/blog/2012/02/22/programming-languages-and-sheet-music/"/>
+    <updated>2012-02-22T10:06:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2012/02/22/programming-languages-and-sheet-music</id>
+    <content type="html"><![CDATA[<p>If the juxtaposition seems strange to you, I agree with you that at first glance there doesn&#8217;t seem to be much in common between the two. If you&#8217;ve chalked it up the strangeness of the author and moved on to something else I wouldn&#8217;t blame you, but I still think you&#8217;re wrong.</p>
+
+<p>Programming languages and sheet music share some interesting historical similarities besides their importantance as mathematically grounded tools for capturing and spreading ideas. Very different ideas.</p>
+
+<!-- more -->
+
+
+<h2>A Very Shory History of Musical Notation and Programming Languages</h2>
+
+<p>Music is old. Really old. It shouldn&#8217;t be surprising then that written methods of describing music are also old. The oldest surviving example of musical notation, a mesopotamian cuneiform tablet (i.e. modern day Iraq), is about three thousand years old. Other examples of early musical notations also survive from Greece, the Byzantine Empire, India, China, Russia, Japan, Persia and Indonesia among many other countries.</p>
+
+<p>The musical notation that we all know, however, comes from Western Europe, developed by monks in the abbeys and monastaries of the middle ages. Although originating to notate religious music, the modern staff notation became codified and spread with the rise and spread of classical music, and this is the musical notation system we have with us today.</p>
+
+<p>Programming languages as we think of them did not arrive until much later, but that doesn&#8217;t mean that the history of programming languages started in the 1940&#8217;s with the first electronic computer.</p>
+
+<p>No, that date probably belongs at least as far back as 1801 due to the creation of the <a href="http://en.wikipedia.org/wiki/Jacquard_loom">Jacquard Loom</a>. Besides the mechanical machine there was a language of sorts. Instead of code as bits or text files there where cards with holes punched in them. Instead of computing information it creates you a rug or some fabric. This invention, and its method of programs &#8220;written&#8221; on cards with punched holes, inspired Charles Babbage in his design of his computing machines: the Difference Engine and the Analytical Engine.</p>
+
+<p>Neither of these was actually completed in his lifetime. A fully built Difference Engine wasn&#8217;t completed until 1991 and work only began very recently on a <a href="http://www.nytimes.com/2011/11/08/science/computer-experts-building-1830s-babbage-analytical-engine.html?_r=1/">10 year multi-million dollar project</a> to build a working version of the Analytical Engine. The Analytical Engine as designed is the first instance of a Turing complete machine, making Ada Lovelace&#8217;s program to compute a sequence of Bernoulli numbers the first program written in a Turing-complete language. (For further reading I submit to you: <a href="http://sydneypadua.com/2dgoggles/stories/">A humorous and fictional account of Babbage and Lovelace.</a>)</p>
+
+<p>Unfortunately for Babbage, failing to get your brilliant ideas working in the real world doesn&#8217;t help you much to convince people that they actually are brilliant. Hence the idea of a general purpose computing machine (and the languages needed to program them) had to wait for more than 50 years to be realized. That doesn&#8217;t mean that different programming languages and computing machines didn&#8217;t arise in the meantime.</p>
+
+<p>For example the <a href="http://en.wikipedia.org/wiki/Player_piano">autopiano</a>, invented in 1876, had a sort of language for describing how to play music, while Herman Hollerith used punch cards to encode the 1890 census and then quickly tabulate the results. A steady progression of mechanical calculating machines eventually led to the creation of the &#8220;modern,&#8221; electrically powered computer in the 1940&#8217;s and with it various assembly languages, and then the explosion of general purpose languages that happened after the creation of Fortran, Lisp and Algol.</p>
+
+<p>Wait a second! Back up a bit. A language, albeit a very limited one, that tells a piano how to play music? We&#8217;re back to musical notation again. This time, a sort of hybrid between the two: a human illegible notation for music and a very, very limited language for programming an autopiano. Some may contend that this is not programming, but it is an encoding of a series of steps to &#8220;compute&#8221; a song.</p>
+
+<p><span class='pullquote-right' data-pullquote='A programming language allows you to compute the values of functions, or the results of algorithms'>At this point it might be helpful to describe what a programming language is. A programming language allows you to compute the values of functions, or the results of algorithms, a series of well-defined steps. The duality of functions, mathematical functions, and series of steps is not a coincidence. Computation, and therefore programming languages, are intertwined with math. In a bit, we&#8217;ll see how exactly.</span></p>
+
+<p>But first let&#8217;s see what math has to do with sheet music.</p>
+
+<h2>The Mathematical Basis of Musical Notation</h2>
+
+<p>The most obvious example is that there are numbers written on every piece of music giving the timing: 4/4 or 3/4 or 6/8. Music implies repetition of sound, but it only sounds good when it forms some sort of regular pattern. Sheet music breaks that up into wholes, or measures, and describes them using meter. The sheet music also usually has a recommeded timing, or length of certain kind of note. A 3/4 time means that there are three major beats in a measure, and 1 whole beat is marked as a quarter note. Why not as a whole note? I don&#8217;t know.</p>
+
+<p>The notion and therfore the notation of rythym is inextricably connected with regular repetitions, and those sound good when they come at regular intervals and they form some relation to each other. In fact the notes are a form of binary fractions. You could represent the length of notes in binary:</p>
+
+<table>
+<thead>
+<tr>
+<th></th>
+<th align="center"> Note Name         </th>
+<th align="center"> &#8220;Binary&#8221; </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td></td>
+<td align="center"> Double Whole Note </td>
+<td align="center"> <code>1000000000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Whole Note        </td>
+<td align="center"> <code>0100000000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Half Note         </td>
+<td align="center"> <code>0010000000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Quarter Note      </td>
+<td align="center"> <code>0001000000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Eigth Note        </td>
+<td align="center"> <code>0000100000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Sixteenth Note    </td>
+<td align="center"> <code>0000010000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Thirty-second Note </td>
+<td align="center"> <code>0000001000</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Sixty-fourth Note </td>
+<td align="center"> <code>0000000100</code></td>
+</tr>
+<tr>
+<td></td>
+<td align="center"> Hundred Twenty-Eighth Note </td>
+<td align="center"> <code>0000000010</code></td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Rests can also be encoded in the same manner. (Wikipedia has a <a href="http://en.wikipedia.org/wiki/Note_value">table of these notes, the rests and what they look like</a> for those who are fascinated by music but not familiar with its notation. Nice to meet you too, nobody.)</p>
+
+<p>Then you can think of a dotted note as adding a version of itself right-shifted by one bit: <code>dotted_note = undotted_value + (undotted_value &gt;&gt; 1)</code>. A quarter note <code>0001000000</code>, when dotted,becomes <code>0001100000</code>. Two tied notes can be added together: a whole note <code>0100000000</code> tied with a quarter note <code>0001000000</code> becomes <code>0101000000</code>.</p>
+
+<p>This system is made more complicated when tuplets are introduced but the ratios and the math remain. These are only the easiest to see. Because music is based on sound, the mathematics of sound also affect the notation of music, a topic way out of my comfort zone. Besides the application to musical notation, branches of mathematics, such as set theory and abstract algebra, are also related to music theory, at least, <a href="http://en.wikipedia.org/wiki/Music_and_mathematics">according to wikipedia</a>.</p>
+
+<h2>The Mathematical Basis of Programming Languages</h2>
+
+<h2>The Church-Turing Thesis</h2>
+
+<p>Early in history of computing, mathematicians wanted to figure out what exactly computation means. They proposed different ways of modelling computations. Alan Turing developed a machine that provides the canonical definition of algorithms. If it runs on a Turing machine it is an algorithm or &#8220;an effective method to calculate a function, expressed as a finite list of well-defined instructions.&#8221; An effective method means that the method always: gives an answer-the correct answer, can complete the calculation in a finite number of steps, and works for all instances of a class of problems.</p>
+
+<p>Other mathematicians came up with ideas rooted in recursive mathematical functions. For example Alonzo Church created the lambda calculus, the repeated application of functions. Other models for computability were also created, but it was shown that these are equivalent. This thesis, the Church-Turing Thesis, expresses the idea that the idea of computable functions, embodied in Church&#8217;s lambda calculus, is exactly equivalent to the idea of algorithms, embodied in the Universal Turing machine. Both rely on the idea that given infinite time and space, they can solve (and not solve) the same functions. Lambda calculus relies on infinity through recursion, while the Turing Machine invokes infinity by requiring an infinite tape.</p>
+
+<p>There are other theories (recursion, reckonable in the system S1, canonical systems, register machine, combinatory logic, pointer machine, cellular automata) are also considered by the Church-Turing thesis to be equivalent to each other. (Sidenote: Since the idea of an algorithm is the intuitive definition of mechanical computation and not a formal idea, the Church-Turing thesis cannot be proven. i.e. a proof cannot show that a formal system, a Turing machine, is equivalent to an intuitive idea, mechanical computation.)</p>
+
+<p>Since programming languages encode programs, whether they are thought of as algorithms as in imperative languages, or as functions in functional languages, or logical contraint resolution in logical languages, or any other way of computing a function, they are computing and manipulating mathematical objects.</p>
+
+<h2>The Curry-Howard Correspondence</h2>
+
+<p>This is another way that programming languages, like musical notation, are steeped in math: type systems.</p>
+
+<p>Simply put, a typed computer program is exactly equivalent to a logical proof. Programs are proofs and types are logical propositions. This allows you to think about the problem in whatever way is most helpful at a time, and switch back and forth as needed. This probably seems very unexpected,  but it can be very useful.</p>
+
+<p>This means that proofs can be written in a language like Coq, checked by computer and run. In addition, types can be used to prove different properties of programs - for example that <a href="http://en.wikipedia.org/wiki/L4_microkernel_family#Current_research_and_development">your kernel</a> is free of implementation bugs such as deadlocks, livelocks, buffer overflows, arithmetic exceptions or use of uninitialised variables.</p>
+
+<p>So, unless you are programming in assembly or the untyped lambda calculus, the Curry-Howard correspondence grounds your programming language in mathematical theory, just as musical notation is.</p>
+
+<h2>&#8220;Thought Stuff&#8221;</h2>
+
+<blockquote><p>Why is programming fun? What delights may it&#8217;s practitioner expect as his reward?<br/>&#8230;<br/>[T]here is the delight in working in such a tractable medium. The programmer, like the poet, works only slightly removed from pure thought-stuff. He creates his castles in the air, from air, creating by exertion of the imagination. Few media of creation are so flexible, so easy to polish and rework, so readily capable of realizing grand conceptual structures&#8230;</p><footer><strong>Fred Brooks</strong> <cite>The Mythical Man-Month</cite></footer></blockquote>
+
+
+<p>As the English language was to Shakespeare so is the programming language to a programmer or musical notation to the composer, a means to capture and describe thought stuff.</p>
+
+<p>These three things have something in common, a series of abstract symbols and associated meanings. Instead of pictograms for things, actions and descriptions we have words made up of abstract symbols called letters. Then we combine these groups of abstract symbols into groups of groups of symbols called sentences. With just 26 symbols we have created 250,000 words. And with all these words we can create an infinite number of syntactically and grammatically valid sentences. With only 26 symbols we can still create an infinite number of words, although I&#8217;m not sure what &#8220;sinfalderogalteblishanieraphtholology&#8221; or &#8220;qqqqqqqqqqqqqqqqqqqqqqqqqqqqqq&#8221; should mean.</p>
+
+<p><span class='pullquote-right' data-pullquote='It is strange and fascinating that a few simple rules, a finite grammar, can create infinite possibilities'>It is strange and fascinating that a few simple rules, a finite grammar, can create infinite possibilities. In the same way that we can create an infinite number of sentences or even words for the english languages, there are an infinite number of programs for any programming language, or songs that can be captured by a musical notation. Our job is to capture these ideas, explore the space of interesting and beatiful english, songs and programs.</span></p>
+
+<p>There&#8217;s a reason though that programming fascinates me more than others and I think the Fred Brooks captures pretty well the reason why. I&#8217;ll let Fred explain.</p>
+
+<blockquote><p>Yet, the program construct, unlike the poet&#8217;s words, is real in the sense that it moves and works, producing visible outputs separately from the contruct itself. It prints results, draws pictures, produces sounds, moves arms. The magic of myth and legend has come true in our time. One types the correct incantation at the keyboard, and a display screen comes to life showing things that never were nor could be. </p><p>Programming then is fun because it gratifies creative longings built deep within us and delights sensibilities we have in common with all men.</p><footer><strong>Fred Brooks</strong> <cite>The Mythical Man-Month</cite></footer></blockquote>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[GreenTea's 2nd Place Entry Postmortem Translated by Hand]]></title>
+    <link href="http://hacklash.github.com/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/"/>
+    <updated>2011-12-23T22:10:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand</id>
+    <content type="html"><![CDATA[<h2>Editorial stuff</h2>
+
+<p>This is the <a href="http://brunneng.blogspot.com/2011/12/google-ai-challenge-2011-ants.html">original</a> but I got tired of reading the Google Translation and thought that more people would enjoy reading the postmortem in native(-ish) English. I&#8217;d like to thank GreenTea for linking to this and for any Russian speakers, proshu prosheniye za oshibki perovedeniya.
+Before we begin, here is the <a href="https://sourceforge.net/projects/ants2011/">code for the final bot</a>.</p>
+
+<p><strong>Begin Translation</strong></p>
+
+<p>As I write this post the finals of the Google AI Contest 2011 - Ants is in full swing. The organizers are gradually cutting off the weaker bots to allow the stronger ones to play more. According to the timer on the <a href="http://ants.aichallenge.org">official site</a> the winner will be announced in 1 day, 5 hours, 35 minutes and 5, 4, 3, 2 &#8230; seconds.</p>
+
+<p>Oh yeah, what was I saying? At the moment <a href="http://ants.aichallenge.org/profile.php?user=398">my bot GreenTea</a> is in third place (<em>Ed. it finished in second place</em>). And it is the focus of this post. I don&#8217;t even know where best to start since so much effort and time was invested, beginning with the beta itself before hills were added to the game &#8230;</p>
+
+<p>This year&#8217;s beta ended up dragging on for an inexcusable amount of time. This greatly undermined my faith in enthusiasm and in open source. Then suddenly the developers wrote on the site &#8220;Sponsored by Google&#8221; and then an intense commotion began to stir as well as some commits. Come on! Although better that than the alternative :) - I really thought that it was going to stall at the beta stage and that would be it &#8230; And the whole beta (I can&#8217;t even remember how long anymore, 4 months?) I coded something little by little, adding and improving.</p>
+
+<p>If there&#8217;s a reason I love this type of competition, it&#8217;s because there is LOTS of time. You don&#8217;t have to hurry or rush: you can sit down, think everything through, try stuff, test, make a change &#8230; make 5 more changes, do some more testing, etc. Basically its enjoyable to program within my level of understanding.</p>
+
+<!-- more -->
+
+
+<h1>Game Mechanics</h1>
+
+<p>The map is a rectangular torus of a certain size, where by going  off of top you&#8217;ll arrive at bottom and if you go over the left side you will end up on the right side. Each player starts with the same number of holes and an ant next to each hole. Every tile on the map can be either land, or water which is impassable for an ant. Ants should collect food because for each piece collected an ant will appear out of one of that player&#8217;s holes, chosen at random. Food appears randomly on the map. If ants belonging to different players after the move phase are within the attack radius, they will fight. The combat rules are not exactly easy to explain but suffice it to say that, in general, more ants  a player has in the battle, the fewer ants they will lose. A hole is destroyed when an ant stands on a hole belonging to a different player. Destroying a hole is worth 2 points and losing a hole costs you 1 point. So if the choice is between capturing an enemy&#8217;s hole and saving your own, you should only prefer the first option if you have more than 1 hole left. For each turn your bot needs to tell each ant where to go. Oh, I almost forgot to mention that each map is symmetric and the food also pops up symmetrically random so that everything is fair for each player. And that&#8217;s it! These aren&#8217;t tricky rules.</p>
+
+<p>In contrast to Planet Wars, where moves were not clear, this game is easier to break into sub-problems and then solve each individually. Well, for example, it&#8217;s obvious that you need to race for the food that is evenly spread across the map and then assault the enemy with your large numbers of ants. The funny thing is that even though the competition is easier and clearer for everyone individually, it is just as complex to defeat everyone else and the dificulty of the competition didn&#8217;t decrease at all.</p>
+
+<h1>My Tools</h1>
+
+<h2>Java</h2>
+
+<p>I am a java developer. It is a simple and fast language. It allows you to very quickly pump out tons of code (if you need to implement some fresh idea) without worrying about all sorts of system things like memory leaks (hi C++ !!).
+For these reasons I chose to write my bot in Java. At some point in the middle of the beta I tried switching to SBCL Lisp for fun. I didn&#8217;t work out &#8230; My path finding algorithms, written exactly the same way but in Lisp were 5 time slower than the Java versions. It&#8217;s possible that this is because I don&#8217;t know Lisp well enough &#8230;</p>
+
+<h2><a href="http://www.jetbrains.com/idea/">IntelliJ IDEA Community Edition</a></h2>
+
+<p>Excellent development environment. I had practically no complaints throughout the process. Once, however, the incremental compilation cache got corrupted ?and it complained that every line of code was a compilation error. I ended up having to clear the cache by hand and restart.</p>
+
+<h2>git</h2>
+
+<p>I really regretted not using version control on Planet Wars. I fixed this error, and from the start committed my code to a git repository. Git won me over with its many options and speed (in comparison with svn).</p>
+
+<h2>Perl Scripts</h2>
+
+<p>In the previous contest, Planet Wars, I created scripts to automatically test my bot against my own previous versions. It would be a sin not to use them like this! I had to modify the script to adapt it to multiplayer maps and the free for all mode - i.e. every man for himself.
+For example:
+<img class="center" src="http://hacklash.github.com/images/GreenTea/01.png"></p>
+
+<p>After Game three the bot:</p>
+
+<ul>
+<li><p>Beat 1.5 bots and lost to 4.5 bots (A tie is split between the two)</p></li>
+<li><p>Scored 0 points while the other bots scored 2.16 points on average</p></li>
+</ul>
+
+
+<p>And the Summary Info:</p>
+
+<ul>
+<li><p>4.5 wins (45%)</p></li>
+<li><p>5.5 losses</p></li>
+<li><p>4 points scored total (sum from all games)</p></li>
+<li><p>3.66 is the sum of the mean scores for all opponents</p></li>
+</ul>
+
+
+<h2>Google Documents Spreadsheets</h2>
+
+<p>I used it to keep track of my improvements, bot versions and the results of testing the different versions against each other on different maps and with different food spawning patterns.</p>
+
+<h2>Sampling Profiler <a href="http://java.sun.com/developer/technicalArticles/Programming/HPROF.html">hprof</a></h2>
+
+<p>This tool was a large help to me. Looking ahead about 2 weeks before the deadline, my bot still very frequently timed out (took more than 500 ms on at least one turn). I couldn&#8217;t understand how this was happening. At first glance the code was clean and ideal, and looking at the data for the game the bot timed out showed that the bot should have had time to finish the turn (for example 300ms left). Then why is it stuttering and falling on its face? I had begun thinking about all sorts of mystical causes, like the garbage collection running at some point and pausing execution. Perhaps this is part of the problem, but the solution was much simpler than that. I don&#8217;t remember how exactly, but I ran into hprof. You run it in its own process as an agent to java-e (something like this: &#8220;agentlib:hprof=cpu=samples,interval=10,depth=10&#8221;) and as the program runs (in my case as the bot takes its turns, say 200 turns) it gathers statistics about which pieces of code run most often. With this help I found many not-so-obvious places that were running slowly. There was some old, creaky code which could be made 10x simpler! Actually, there was quite a bit of it. Because of these tweaks my bot ran about 40% faster and all of my timeouts on the official site disappeared.</p>
+
+<h1>Birth and Evolution</h1>
+
+<blockquote><p>The young do not remember, but I do, that it all began in an open space. Ants were nomads and had no holes. For what purpose are holes when ants are born from a piece of food? In these wide open spaces the childhood and youth of GreenTea were spent. In the beginning while still very young, we walked towards our food in a straight line, now and then bumping into the wall. Sometimes we would get stuck to them, struggle, but could not escape. Later I learned to <strike>walk</strike> find the shortest path to food &#8230;</p></blockquote>
+
+
+<p>The first part implemented was spreading out evenly on the visible portion of the map. Implementing the rule to go where none of my ants already were was pretty easy. We find the <strong>N</strong> nearest ants and build a vector from each of them to the current ant. We give each vector a magnitude of 10 (a magic constant) and sum the vectors together to get the vector the current ant should move in. <strong>N</strong> may vary, the larger <strong>N</strong> the better they spread out but this also takes longer, and begins to be noticeable later in the game when you have lots of ants.
+<img class="center" src="http://hacklash.github.com/images/GreenTea/02.png"></p>
+
+<p><em>The figure shows how the vectors to the ant (yellow) are summed up to create the vector for the ant (green). This is similar to how molecules of gas interact.</em></p>
+
+<p>Then there was pathfinding. I honestly didn&#8217;t use Google because I wanted to figure it out myself. My first algorithm ended up greedy, recursive, and admittedly, not very fast. But this was quite good enough in the beginning.</p>
+
+<blockquote><p>But the carefree childhood on the open spaces did not last long. Now and then other ants appeared, who could also search for food not just in a straight line but by shorter paths, and for some reason they did not want to live and let live &#8230;</p></blockquote>
+
+
+<p>The second thing I implemented was combat code. The thing is that during the beta the rules deciding combat as well as the attack radius were unstable. Because of that it was necessary to write something more or less universal so that I wouldn&#8217;t have to rewrite it again. I didn&#8217;t manage to think of anything better than going through all possible moves for my ants and the opponents ants which could be drawn into a fight. I chose out of all those choices the ones that prevented any enemy move from killing all of my combatants in one fell swoop. If there were more than a few of these &#8220;safe&#8221; moves, the one that causes the most problems for the enemy is chosen. In short: we seek the most aggressive of the safest moves. These two factors are often mutually exclusive so safety always comes first. Initially the algorithm was configured to fight battles with 7 ants or fewer (counting both my and enemy ants). This is a maximum of 78,125 possible moves. In practice, adjacent ants and water tiles eliminate combinations. When I let there be 8 ants in a battle I was guaranteed to timeout.</p>
+
+<blockquote><p>And the ants understood that together they were powerful. And they began to annihilate their enemies, pulverizing them without pity or rage.</p></blockquote>
+
+
+<p>As far as I remember the battle code, together with pathfinding and spreading out directive, led the GreenTea bot to a quick rise to the top of the beta site&#8217;s rankings. It was the rare opponent that could hold out against the crazy micro which just worked amazingly, and no wonder, it was looking at all the possible moves! For battle groups of >8 ants there was a primitive algorithm but it got used so infrequently because on the revealed map large numbers of ants rarely clumped together up to that point in time (more on that later).</p>
+
+<h1>Improvement</h1>
+
+<p>Someone could disagree with me, but it seems to me that Ants differs from Planet Wars in that improvement is significantly easier. Because of this, when you watch the replay - its immediately apparent where the bot made a mistake. Here&#8217;s pretty much how most of the improvements happened: watching the replay &#8220;Aha - here it was a little dumb and lost an ant, here then went wonky and gathered into a clump when it should have spread out in different directions and look for food &#8230;&#8221; Planet Wars required tough math and accurate scoring. One mistake and it was all over. Here you can make a few mistakes, its possible to make a few good turns and even a few OK turns without causing you to lose. But all the same the person who wins is the one who makes fewer mistakes.</p>
+
+<p>Looking at my Google Doc spreadsheet I made 76 improvements, each of which was tested on different maps and different food spawning methods and showed between a 3 and 15% in the number of victories in a 1 vs 1 battle with the previous version, and between 1 and 10% improvement in FFA battles. I will describe the most significant improvements to the bot made from the beginning. Why not start once the rules of the game were finalized? Because from that point many important improvements were made which influenced the excellent play on the open maps, even with holes as a part of the game.</p>
+
+<h2>u4. Improving Pathfinding - Paths should look more like a straight line</h2>
+
+<p>Heh. My first clumsy attempt at pathfinding found the shortest path but it looks slightly off.
+<img class="center" src="http://hacklash.github.com/images/GreenTea/03.png"></p>
+
+<p><em>Red - original path found to food. Green - correct path. Although its not obvious that they are the same length, both paths have the same lengths when measured using tiles.</em></p>
+
+<h2>u6. When searching for food and enemies use the actual shortest distance</h2>
+
+<p><img class="center" src="http://hacklash.github.com/images/GreenTea/04.jpg"></p>
+
+<p><em>Old version of bot incorrectly used the red path as the distance when the green path is the actual distance to the food. In this case we would have wasted some moves going towards the food when the enemy will get there first.</em></p>
+
+<p>(Ed. Apparently he switched from using the Manhattan distance, which the starter bot provided, to something like breadth first search, although apparently not that. BFS started at u56.)</p>
+
+<h2>u9. Combat Algorithm</h2>
+
+<p>Read about it above.</p>
+
+<h2>u11. Collect food before attacking</h2>
+
+<p>Since the more ants you have the faster you can grow, it is critical to eat food as soon as possible to get ants as fast as possible. That is why it is important, even in the middle of a fight, to pull one ant out of the fight to go pick up the food.</p>
+
+<h2>u14. The Combat Algorithm prunes duplicate positions. </h2>
+
+<p>This significantly sped up search allowing battle groups to be up to 8 ants.</p>
+
+<h2>Implementation</h2>
+
+<p>Wrote a hash function that takes all positions of moved ants and produces an integer i.e. hash value of the position. Then I keep track of all executed positions in a HashSet and before executing a position further, the algorithm checks to make sure the position has not been executed before. Skipping execution when it had seen the position before saved a lot of time. unfortunately the hash function was not unique enough, i.e. there where some collisions when it thought it had seen the position before when it had not and should have considered the position but ignored it. This completely broke the algorithm and the bot made stupid moves. In the end I had to return to keeping a complete listing of positions and only allowing 7 ants in a battle group.</p>
+
+<h2>u18. Use 4 ants to generate the spreading vector instead of 3</h2>
+
+<p>This looks much better and smoother and pretty significantly improved winning percentage.</p>
+
+<h2>u21. The Combat Algorithm started keeping track of ants who had moved and who spawned over holes</h2>
+
+<p>An ant who moved is for example one went after food instead of fighting.</p>
+
+<h2>u25. Pathfinding Algorithm modification</h2>
+
+<p>Removed recursion from pathfinding in a way that seemed intuitive to me. In retrospect it seems to have become very similar to <a href="http://en.wikipedia.org/wiki/A*_search_algorithm">A*</a> :)</p>
+
+<h2>u26. Timeout Preventing Code</h2>
+
+<p>In a few places the code checks how much time is left. If more than 90% of the time has been used, then an exception is thrown that when caught tidily completes the turn.</p>
+
+<h2>u27. Better choice of which square to move to eat a piece of food</h2>
+
+<p>If you can move closer to another piece of food or further from your ants prefer that way to eat the piece of food. Quite a subtle improvement. Separately considers from which side to approach the food to eat it.
+<img class="center" src="http://hacklash.github.com/images/GreenTea/05.png"></p>
+
+<p><em>Moving to the right is better for two reasons. 1) This brings it closer to the other piece of food, which the other ant isn&#8217;t moving towards. 2) This distances him from your other ant, at the same time extending your visible territory.</em></p>
+
+<h2>u29. If the enemy will reach the food first, then don&#8217;t move toward that food. If there will be a fight over the food send another ant in pursuit.</h2>
+
+<p><img class="center" src="http://hacklash.github.com/images/GreenTea/06.png"></p>
+
+<p><em>If just the nearest ant goes towards the food and the opponent also moves towards the food, they are assured mutual annihilation, while our other ant sits idly by. The second ant should move as close to the food as soon as possible.</em></p>
+
+<h2>u35. Avoiding Enemy Ants, if there are more than two Dangerous enemy bots.</h2>
+
+<p>If a bot is being pressured from all sides then engaging in even trades is a very bad idea, since all of the bot&#8217;s forces would be spread between multiple opponents. On the other hand, passive bots will grow but eventually peter out. One should only attack if it is 100% safe.</p>
+
+<p>And now we&#8217;ve arrived to the tail end of the beta, a phase that reminds everyone of the dominance of the German bot <strong>mathis</strong>. This bot was good managing large, concentrated groups of ants in battle. He lined them up in a chain of ants, while preventing random losses (from, say, an ant moving one step too close to the enemy and getting himself killed). And then this line would simply crush everyone. My combat system, however, was unable to cope because it couldn&#8217;t handle large groups of ants working together.
+The simplified system of combat wasn&#8217;t getting me anywhere. Ants on my front line acted like a disorganized herd and made a lot of mistakes. And yet it did so well at spreading ants around inside its own territory. In addition he separated himself by how effectively he crushes ants which managed to get within his territory. It turns out that mathis worked out where the zone of complete safety was and constantly tried to increase its size. At that point in time I was unable to construct as brutal tactics. From my end there were many small improvements that are not worth mentioning.</p>
+
+<h1>End of the Beta and Start of the Official Google AI Challenge - Ants 2011</h1>
+
+<p>With the official start there were two new things: holes and a new type of map, the maze, which created a bunch a problems for me:</p>
+
+<ul>
+<li><p>Spreading my ants out by vectors didn&#8217;t work on mazes. Mostly the ants ended up getting killed near the hill.</p></li>
+<li><p>Experienced severe slowdown as soon as the number of ants got larger than 50. This was because almost all pathfinding, which there was a lot of, didn&#8217;t finish quickly, and got confused and lost.</p></li>
+</ul>
+
+
+<h2>Improvements of Version 2.1</h2>
+
+<p>A new method of spreading out in the maze. This was a nightmare, but worked better than the vectors in addition to not slowing down &#8230;
+Here&#8217;s how the improvement worked:
+Create a map of what is visible. Each tile corresponds to a tile on the full map. Every turn I incremented the value at visible tiles by 1 and kept these values between turns. Over time, places where ants have been frequently will have quite large values. And when an ant is choosing where to go, it will prefer a tile with a smaller visibility score, i.e. that has been seen fewer times, and then ants don&#8217;t sit around in one place but try and expand away from the hill.</p>
+
+<p>The main thing was to do this only for maze maps. I decided if a map was a maze map by gathering statistics for all the pathfinding and if the found shortest paths ran into lots of obstacles and there weren&#8217;t many straight-ish paths I assumed it was a maze.</p>
+
+<h2>Hole Defense</h2>
+
+<p>My hole defense was not very intricate: as soon as enemy ants were within <em>N</em> moves of the hole, all of my nearby ants would throw themselves at the enemy. For a long time <em>N</em> was 25, near the end I changed it to 15. I might have been worth making even smaller.</p>
+
+<ol>
+<li>If you have only one hole left</li>
+<li>If you have a lot of ants on the map.</li>
+</ol>
+
+
+<p>On a map where you start with more than one hole it&#8217;s not necessary to defend all of them from the start. A bot that does that wastes a lot of time, will miss out on food collection and get crushed by the enemy who now has a large numerical advantage.
+So, I defend my holes if I have 1 hole or the number of my ants is greater than <em>C</em> times the number of holes I have (where C is a magic constant equal to 10).</p>
+
+<h2>u54. New Type of Attack - &#8220;Medium&#8221;</h2>
+
+<p>This was the first attempt to do something better than a simple attack in order to compete with mathis.</p>
+
+<h2>u56. Improved Movement Towards Goals</h2>
+
+<p>Now examines the shortest path to all free ants within a certain area of accessible tiles. You can call it the embryo of <a href="http://en.wikipedia.org/wiki/Breadth-first_search">breadth-first search (BFS)</a>.</p>
+
+<h2>u70. 1) Many Performance Tweaks 2) Food Gathering Tweak</h2>
+
+<p>When going for a piece of food, the ant can go for a more distant cluster of food than the closest, if it will move him away from the main cluster of ants.
+<img class="center" src="http://hacklash.github.com/images/GreenTea/07.png"></p>
+
+<p><em>In this case it is better to go for the further away food.</em></p>
+
+<h1>Nearing the Finish Line</h1>
+
+<p>One week left before the finals. On both the official and tcp server a German bot named <strong>xathis</strong> is dominating. His 1st version arrived about week after the official start and immediately took the lead. Then, almost at the end of the competition his second version has appeared - and broke away from everyone again by a large margin. And where did mathis disappear to? <em>(Ed. xathis&#8217; name is Mathis Lichtenberger)</em></p>
+
+<p>I used a week of my vacation time from work to spend on one last push.</p>
+
+<p>The drawback of the current method of distributing ants in a maze with a comprehensive map was that often ants are pushed into dead ends and could not get out of them. This was a natural consequence of the method chosen; the way out of the dead end is already well explored by other ants and its impossible to get out with the same method that got you there.</p>
+
+<p>I decided to try  a much bigger emphasis on breadth first search. The idea is that there are a few types of goals. Each goal has its own priorities. Around a goal of one type waves spread out in the search, increasing the importance of the priority in the cell but by a diminishing amount the further away it is from the source, using the inverse of the square of the distance from the target.
+Types of Objectives:</p>
+
+<ul>
+<li><p>Boundary point on the edge of visible region - they lead to unexplored territory</p></li>
+<li><p>Enemy ants</p></li>
+<li><p>Enemy holes</p></li>
+<li><p>Points which haven&#8217;t been seen for more than 20 turns, but are found in the already explored region. There could be food there which we should gather.</p></li>
+</ul>
+
+
+<p>In that way after 4 rounds of BFSes the map has been filled with priorities which increase the closer a tile is to one (or a few) of the goals. All that is left to do is take each ant and move it towards the most high priority tile in its view radius. This improvement led to a truly tangible improvement in strength. This despite the fact that I did not have time to optimize the coefficients for each type of goal.</p>
+
+<h2>Final Weekend Before the Final</h2>
+
+<p>These were the most active days for past few months. I tried to figure out the best system for battle with large numbers of ants. I moved forward with the help of unit tests. I found in the replays situations where I made mistakes, make a corresponding unit test and tried to fix the problem. The code turned out horrible, but I managed to fix 15 problems and not regress on any earlier ones :).  This set of improvements game win a 60-70% win rate against the previous version 1vs1. And up to a 10% improvement in a free for all. Looking at the fact that the new version managed to gain second place on the official server, I held out great hopes before the start of finals!</p>
+
+<h2>What I Ran Out of Time To Do</h2>
+
+<p>All the same the final battle system ended up not nearly as good as xathis&#8217;. In order to see this, all one needs to do is watch a few games against him.
+I also don&#8217;t like I follow already captured territory in search of food when spreading out for maze maps mixed with the map of priorities. It seems that it would have been better to use a uniform grid coverage system like xathis or tetrapohedron. It would be nice if scouts would dynamically join battles if needed.</p>
+
+<p>It&#8217;s time to finish this up. The article ended up not a small one. (Ed. I&#8217;ll say) :)</p>
+
+<p>I want to thank Roma Ishenko :), my work colleague, for helping me brainstorm over lunch, thinking over new opportunities for improvement.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[AI Challenge Code Dump]]></title>
+    <link href="http://hacklash.github.com/blog/2011/12/19/ai-challenge-code-dump/"/>
+    <updated>2011-12-19T10:29:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/12/19/ai-challenge-code-dump</id>
+    <content type="html"><![CDATA[<p>Phew. The Google AI contest closed for entries last night. I had been working on a bot since the start of the contest, but I gave it up after running into timeout issues that I couldn&#8217;t track down.</p>
+
+<p>With 36 hours to the deadline I jumped back into the game, read through the forums and decided to try a different approach than I had been pursuing. The code is ugly and there are almost no comments (none if you count only those that will make sense to anyone else) but I thought that this blog could use some more code on it, and some of you may be interested in how my diffusion approach looks.</p>
+
+<!-- more -->
+
+
+<p>With all those caveats and hedging, here you go:</p>
+
+<div><script src='https://gist.github.com/1518554.js?file=MyBot.java'></script>
+<noscript><pre><code>import java.io.IOException;
+import java.util.*;
+
+/**
+ TODO   if closeToFood: efficiently eat food 
+        if closeToFrontier: explore if notCloseToFrontier: either move to conflict or to (nearest) part of external border 
+        if closeToEnemyAnt: 
+            if more numerous: attack else: flee and summon help
+        if closeToEnemyAnthill: strike or surround 
+        defend own ant hill (keep it watched and then call in help) 
+        if reserves very large suspend food gathering and interior intelligence maintenance
+ */
+
+/*
+Version Name Ideas: Antilles*, Bossk*, Carth* /Chewie/Cracken, Dengar, Exar/Ebe, Fett/Fortuna, Greedo/Grievous, Han/Horn,
+Ig88, Jabba, Katarn/Kenobi/Kun, Lars/Leia/Lobot, Maul/Mothma, Organa, Porkins, Quadrinaros, Rendar/Ruhk,
+Solo, Tarkin, Vader, Wicket/Windu, Xizor, Yoda, Zorba/Zuckuss
+ */
+ 
+/* This Version is Carth */
+public class MyBot extends Bot {
+    public MyBot() {
+    }
+
+    public static void main(String[] args) throws IOException {
+        new MyBot().readSystemInput();
+    }
+
+    Map&lt;Tile, Integer&gt; visitedAgo = new HashMap&lt;Tile, Integer&gt;();
+    Set&lt;Tile&gt; seenFood = new HashSet&lt;Tile&gt;();
+    Set&lt;Tile&gt; seenEnemyHills = new HashSet&lt;Tile&gt;();
+
+    @Override
+    public void doTurn() {
+        Ants state = getAnts();
+        Board.setAnts(state);
+
+        findExloreTargets();
+
+        double[][] diffArray = new double[Board.getRows()][Board.getCols()];
+
+        Map&lt;Tile, Integer&gt; consts = new HashMap&lt;Tile, Integer&gt;(visitedAgo);
+
+        for (Tile ea : state.getEnemyAnts()) {
+            for (Tile ma : state.getMyAnts()) {
+                if (state.getDistance(ea, ma) &lt;= 4) {
+                    List&lt;Aim&gt; possibleDirs = state.getDirections(ma, ea);
+                    Tile escapeTo;
+                    if (Board.canIssueOrder(ma, possibleDirs.get(0))) {
+                        escapeTo = Board.getTile(ma, Aim.getOpposite(possibleDirs.get(0)));
+                        consts.put(escapeTo, 10000);
+                    } else if (possibleDirs.size() &gt; 1 &amp;&amp; Board.canIssueOrder(ma, possibleDirs.get(1))) {
+                        escapeTo = Board.getTile(ma, Aim.getOpposite(possibleDirs.get(1)));
+                        consts.put(escapeTo, 10000);
+                    }
+                }
+            }
+        }
+
+
+        for (Tile a : state.getMyAnts()) consts.put(a, 0); //TODO don't do as const?
+        for (Tile mh : state.getMyHills()) consts.put(mh, 0);
+        for (Tile w : Board.waterTiles) consts.put(w, 0);
+
+        final int FOOD = 5000;//TODO use turns of hillAnts left to decide value of getting food
+        for (Tile f : seenFood) consts.put(f, FOOD);
+
+        final int E_HILL = 9000000;
+        for (Tile eh : seenEnemyHills) consts.put(eh, E_HILL);
+
+        final int E_ANT = 100;
+        for (Tile ea : state.getEnemyAnts()) consts.put(ea, E_ANT);
+
+        for (int r = 0; r &lt; Board.getRows(); r++) {
+            for (int c = 0; c &lt; Board.getCols(); c++) {
+                Tile t = new Tile(r, c);
+                diffArray[r][c] = consts.containsKey(t) ? consts.get(t) : 0;
+            }
+        }
+
+        final int ITERS = state.getViewRadius2() * 7;
+        for (int i = 0; i &lt; ITERS; i++) {
+            for (int r = 0; r &lt; Board.getRows(); r++) {
+                for (int c = 0; c &lt; Board.getCols(); c++) {
+                    Tile t = new Tile(r, c);
+                    if (!consts.containsKey(t)) {
+                        double total = 0;
+                        for (Aim a : Aim.allDirections()) {
+                            Tile neighbor = Board.getTile(t, a);
+                            total += diffArray[neighbor.getRow()][neighbor.getCol()];
+                        }
+                        diffArray[r][c] = total / 4;
+                    }
+                }
+            }
+        }
+
+        for (Tile mh : state.getMyHills()) {
+            diffArray[mh.getRow()][mh.getCol()] = Double.NEGATIVE_INFINITY;
+        }
+
+        List&lt;Tile&gt; myAnts = new ArrayList&lt;Tile&gt;(state.getMyAnts());
+        for (Tile ma : myAnts) {
+            double[] choices = new double[5];
+            choices[0] = Board.canIssueOrder(ma) ? diffArray[ma.getRow()][ma.getCol()] : Integer.MIN_VALUE;
+            int i = 1;
+            for (Aim a : Aim.allDirections()) {
+                Tile nt = Board.getTile(ma, a);
+                choices[i] = Board.canIssueOrder(ma, a) ? diffArray[nt.getRow()][nt.getCol()] : Integer.MIN_VALUE;
+                i++;
+            }
+            double maxV = choices[0];
+            int maxI = 0;
+            for (i = 1; i &lt; 5; i++) {
+                if (choices[i] &gt; maxV) {
+                    maxV = choices[i];
+                    maxI = i;
+                }
+            }
+            switch (maxI) {
+                case 1:
+                    Board.issueOrder(ma, Aim.NORTH);
+                    break;
+                case 2:
+                    Board.issueOrder(ma, Aim.EAST);
+                    break;
+                case 3:
+                    Board.issueOrder(ma, Aim.SOUTH);
+                    break;
+                case 4:
+                    Board.issueOrder(ma, Aim.WEST);
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void findExloreTargets() {
+        Set&lt;Tile&gt; curSeenFood = new HashSet&lt;Tile&gt;();
+        for (Tile sf : seenFood) {
+            if (!Board.isVisible(sf)) {
+                curSeenFood.add(sf);
+            }
+        }
+
+        Set&lt;Tile&gt; curSeenHill = new HashSet&lt;Tile&gt;();
+        for (Tile seh : seenEnemyHills) {
+            if (!Board.isVisible(seh)) {
+                curSeenHill.add(seh);
+            }
+        }
+
+        for (Tile eh : Board.getEnemyHills()) {
+            curSeenHill.add(eh);
+        }
+        seenEnemyHills = curSeenHill;
+
+        for (int r = 0; r &lt; Board.getRows(); r++) {
+            for (int c = 0; c &lt; Board.getCols(); c++) {
+                Tile t = new Tile(r, c);
+                if (Board.isVisible(t)) {
+                    visitedAgo.remove(t);
+                    if (Board.getTileType(t) == TileType.FOOD) {
+                        curSeenFood.add(t);
+                    }
+                } else if (Board.afaikIsWalkable(t)) {
+                    int newVal = visitedAgo.containsKey(t) ? visitedAgo.get(t) + 1 : 1;
+                    visitedAgo.put(t, newVal);
+                }
+
+            }
+        }
+        seenFood = curSeenFood;
+    }
+}</code></pre></noscript></div>
+
+
+<p>That isn&#8217;t the only code I modified, a majority of the modified code is in two more files, Board.java and Assigner.java, plus a small tweak to Aim.java (adding the <code>allDirections</code> method). If you need to see them check out <a href="https://gist.github.com/1518554">the full gist</a>.</p>
+
+<p>Board.java is a static version rewrite of Ants.java, a sort of utility class. Perhaps its not the best coding practice to make it static so I didn&#8217;t have to pass it around, but I was in a hurry and by definition the code would only live for 34 hours (making the code on the server, sort of Zombie code).</p>
+
+<p>The Assigner.java class was my attempt at a breadth-first search solution. It was more efficient at getting food, but timed out too much and so I dumped it instead of trying to sort out its performance.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Don't Watch TV News]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/30/dont-watch-tv-news/"/>
+    <updated>2011-11-30T17:04:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/30/dont-watch-tv-news</id>
+    <content type="html"><![CDATA[<p>Don&#8217;t watch TV news, especially the 24 hour news coverage. The incentives are aligned so that news is fast, inaccurate and shocking, and often inaccurate in order to be shocking.</p>
+
+<p>A number of studies have consistently shown that TV news makes people more stupid, i.e. more misinformed, more irrational, more confused, and less able to draw reasonable conclusions or make good decisions.</p>
+
+<p>Instead take the time to accomplish or progress towards your goals. I&#8217;ve slowly been cutting down on my TV and for fun internet browsing. It actually makes a difference in how I feel about the direction of my life. Not so much because I&#8217;m &#8220;wasting&#8221; less time, but that I am moving towards my goals. And that feels good. TV news should be the easiest to cut from your life, mostly because it&#8217;s crap. If I want news I&#8217;ll catch some NPR or read the Economist, the more leisurely news schedule is actually a good thing.</p>
+
+<p>Don&#8217;t believe me that TV news is crap?</p>
+
+<!-- more -->
+
+
+<ul>
+<li><p><a href="http://publicmind.fdu.edu/2011/knowless/">Some News Leaves People Knowing Less</a></p></li>
+<li><p><a href="http://publicmind.fdu.edu/2011/outfox/">Part Deux: Many Think US is bailing out Greece; NPR, Jon Stewart Out-Fox Cable News</a></p></li>
+<li><p>Iyengar, S. 1991. <a href="http://scholar.google.com/scholar?cluster=13640082732205677034">Is Anyone Responsible? How Television Frames Political Issues</a>. Chicago : The University of Chicago Press.</p></li>
+<li><p>Iyengar, S. et Kinder, D. R. 1987. <a href="http://scholar.google.com/scholar?cluster=12369697076511558849">News That Matters: Television and American Opinion</a>. Chicago : The University of Chicago Press.</p></li>
+<li><p><a href="http://scholar.google.com/scholar?cluster=12411958538097557563">The New Videomalaise : Effects of Televised Incivility on Political Trust</a> DC Mutz - American Political Science Review, 2005 - Cambridge Univ Press</p></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Algorithms Are Not a Four-Letter Word]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/24/algorithms-are-not-a-four-letter-word/"/>
+    <updated>2011-11-24T15:30:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/24/algorithms-are-not-a-four-letter-word</id>
+    <content type="html"><![CDATA[<p>Algorithms are important. And actually interesting too, especially if you get away from the dry textbooks and into some applications.</p>
+
+<p>This presentation does that with minimum spanning tree algorithms and shows how they can be used to generate mazes. Watching as the mazes are created is beautiful, so <a href="http://www.jamisbuck.org/presentations/rubyconf2011/index.html#thanks">check them out</a> if that&#8217;s all you get from this post.</p>
+
+<p>In addition he uses these algorithms as examples of deliberate practice, something I&#8217;ll be talking about a lot more, hopefully soon. That&#8217;s because it is important for maximizing one&#8217;s potential productivity, and Jamis makes a <a href="http://www.jamisbuck.org/presentations/rubyconf2011/index.html">convincing case for deliberate practice</a>.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Haskell Amuse-Bouche: Google Tech Talk [Video]]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/21/haskell-amuse-bouche-google-tech-talk-video/"/>
+    <updated>2011-11-21T15:26:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/21/haskell-amuse-bouche-google-tech-talk-video</id>
+    <content type="html"><![CDATA[<p>As I mentioned in <a href="http://www.trevoroakes.com/blog/2011/10/26/expand-your-mind-with-your-next-programming-language/">a previous post</a> one of the languages I will be learning soon is Haskell. If you&#8217;ve never heard of Haskell or you have and don&#8217;t know why you should be interested in learning it, this Google Tech Talk is for you. I really enjoyed it and am excited to have my mind wrung out and then filled up with new ways of thinking about programming.</p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/b9FagOVqxmI" frameborder="0" allowfullscreen></iframe>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[10x Productivity and Developing Expertise: Introduction]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/16/10x-productivity-and-developing-expertise-introduction/"/>
+    <updated>2011-11-16T17:47:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/16/10x-productivity-and-developing-expertise-introduction</id>
+    <content type="html"><![CDATA[<h2>Abstract</h2>
+
+<p>The fact that some programmers are ten times better than others is widely cited and gained a lot of exposure thanks to bloggers like Joel Spolsky. The original experiment to uncover this effect is over 40 years old, and yet the reasons why some are so much more effective than others is poorly understood, in the research and especially among programmers in the field.</p>
+
+<p>This post will hopefully be the start of a series of posts on the differences between the best, worst and median programmers as seen in factors of ten difference in productivity, even when experiments control for experience. I&#8217;ll delve into how an individual programmer can become more like the most effective and productice programmers and how small teams, also affected by large differences in productivity, can make themeselves more competitive and productive. We&#8217;ll tour the psychological studies and mine the software engineering studies to find out what has been proven to work.</p>
+
+<p>Based on the research I&#8217;ve done so far, likely future topics include: increasing efficiency, avoiding rework through design best practices, accurate requirements, focus on quality, doing less through simplicity and reuse, and team programming methodologies such as Agile and CCMI.</p>
+
+<p>Oh, if this sounds like a scholarly research paper &#8230; that&#8217;s because it is based on a paper I did. But now with the new format I can dig even deeper and spend more time on specific issues that didn&#8217;t fit the audience of the actual paper. Hooray for the internet and stay tuned.</p>
+
+<!-- more -->
+
+
+<h2>Introduction</h2>
+
+<p>Programming productivity is a phenomenon primarily studied from the perspective of a business owner or manager, and it seems obvious why. Increasing the value of what you produce relative to your costs leads almost directly to profit, the purpose for a company’s very existence. If a company cannot thrive in a competitive market, increased productivity allows it to decrease prices to survive. The correlation between productivity and profit is even stronger when talking about software because the marginal cost of delivering completed software to a customer is essentially zero.  Almost the entire cost to a software company is the cost of production.</p>
+
+<p>Since most of the research on programming productivity is from the employer’s perspective, it is less obvious to an individual how they could increase their own productivity. It is also less obvious why a programmer would want to increase his productivity.</p>
+
+<p>The rationale that most excites me is the opportunity to increase my influence and power to achieve my own goals and make an impact on the world. If I choose projects that have a positive impact on the world, then by becoming better at programming I can have a larger positive impact on the world. That excites me quite a bit.</p>
+
+<p>However, there is another reason to try and become more productive, the same one as for businesses in fact: profit.</p>
+
+<p>More productive employees are more valuable to and better compensated by businesses as evidenced by the wide ranges of salaries for developers. According to the Bureau of Labor Statistics, those at the twenty-fifth percentile make 1.54 times as much as those at the seventy-fifth percentile, while those at the tenth percentile make 1.9 times as much (<a href="http://www.bls.gov/oco/ocos303.htm#earnings">Bureau 2011</a>). For most individual developers there is significant room to improve their individual earnings.</p>
+
+<p>Presumably a wide variability in programmer performance justifies the wide variability in programmer earnings. In fact there is much more variability in performance than in earnings. Whereas some programmers make about 2.5 times what others make (Bureau 2011), some programmers are ten times as productive as others or more. In the 1960s Sackman, Erikson and Grant conducted the first study to note this variability. Despite some methodological flaws, their data demonstrated a greater than tenfold difference in productivity between the best programmers and the worst. From their sample of professional programmers with at least seven years’ experience, they found no relationship between experience and productivity or code quality (<a href="http://scholar.google.com/scholar?cluster=13171528537832788739">Sackman 1968</a>). This result has been confirmed in study after study: even among programmers with the same level of experience, some are ten times as productive as others (<a href="http://scholar.google.com/scholar?cluster=9552204599209476298">Curtis 1981</a>; <a href="http://scholar.google.com/scholar?cluster=5992780401482396748">DeMarco 1985</a>; <a href="http://scholar.google.com/scholar?cluster=2742861397707053339">Curtis 1986</a>; <a href="http://scholar.google.com/scholar?cluster=4302656467398926747">Boehm 1988</a>; <a href="http://scholar.google.com/scholar?cluster=13528559613230360285">Valett 1989</a>; <a href="http://scholar.google.com/scholar?cluster=10867704288893317825">Boehm 2000</a>).</p>
+
+<p>Knowing that programmer productivity varies so much, several questions demand answers. What separates the best programmers from mediocre programmers? Is it possible to significantly improve my own productivity? How? For the remainder of the series I will do my best to answer these questions. This is still an active area of research, however, with many possible upcoming breakthroughs, but I will focus on things that have been well researched thus far.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Making Things Happen: A Simple Help Queue]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/09/making-things-happen-a-simple-help-queue/"/>
+    <updated>2011-11-09T17:13:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/09/making-things-happen-a-simple-help-queue</id>
+    <content type="html"><![CDATA[<p>I&#8217;m currently a TA for BYU&#8217;s intro to programming class (CS 142) which is fun and interesting and a good opportunity to cement the intro concepts in my mind by teaching and explaining them as simply as possible.</p>
+
+<p>There was one negative about being a TA. We had to stare at this all day:
+<img src="http://hacklash.github.com/images/HelpQueueOldTA.png"></p>
+
+<p>This is the Help Queue as viewed by a TA, which sits open eternally, (while on shift at least) watching us like those annoying people who read over your shoulder, while you are trying to read some programming article or work on the wiki or run through next week&#8217;s lab. Then all of a sudden it&#8217;s like the bat signal, interrupting what you&#8217;re doing, because somebody, somewhere, needs help.</p>
+
+<p>That&#8217;s fine and dandy but there are two problems with it though: it&#8217;s ugly and it doesn&#8217;t quite work the way we the TA&#8217;s or the students like.</p>
+
+<p><img src="http://hacklash.github.com/images/HelpQueueOldList.png">
+<em>See? Ugly.</em></p>
+
+<!-- more -->
+
+
+<h2>Batman to the Rescue</h2>
+
+<p>I wish. Instead I volunteered to play around with the code.</p>
+
+<p>Did I know Python? Not really, unless you count completing the first few challenges from the <a href="http://www.pythonchallenge.com">Python Challenge</a>.</p>
+
+<p>Did I know Google App Engine? Well, not unless you count hearing about it.</p>
+
+<p>Had I ever written css? Nope, never.</p>
+
+<p>Did that stop me? Nope, even though it would be generous to say I was poorly prepared for the project.</p>
+
+<p>The hardest part of jumping into an existing project, as usual, was reading, understanding and getting up to speed with the existing code.</p>
+
+<p>6 or seven iterations later based on feedback, 18 coding hours and only an hour and a half spent on the css, I ended up with this:
+<img src="http://hacklash.github.com/images/HelpQueueNewTA.png">
+<em>Note that Sara requested help after Jared but gets priority because she is ready to pass off and go home.</em></p>
+
+<p>I&#8217;ve gotten really excited about this. More than I probably should. Family members and roommates alike respond with a big whoop. However, I was really surprised by how easy picking up and creating a decent looking page using CSS really was. I&#8217;m not going to claim that it is beautiful though. Far from it.</p>
+
+<h2>&#8220;Ooh, Shiny! Can I Touch It?&#8221;</h2>
+
+<p>Yes, yes you may. I created a demo site so that you could play with and not cause too much mayhem.</p>
+
+<p>Here&#8217;s the link TA&#8217;s use to <a href="http://taohelpqueue.appspot.com/givehelp/HNJU7GZKU6AAJM9GJQ9KQGYHFFWYM6">give help</a>.
+And here&#8217;s what students see when they need to <a href="http://taohelpqueue.appspot.com/requesthelp/TPMPN4WPK7VP833CVKKCKBXVEQ732J">ask for help</a>.</p>
+
+<p>There are still a few performance issues, made especially apparent by the recent changes in AppEngine&#8217;s price structure. Also the code is a little messy.</p>
+
+<p>If anyone&#8217;s interested I&#8217;ll refactor it, fix performance issues and release it as a small open source project on my github account. <em>Comments and Questions Welcome</em></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Ants AI Challenge: Getting Started]]></title>
+    <link href="http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started/"/>
+    <updated>2011-11-02T15:48:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/11/02/ants-ai-challenge-getting-started</id>
+    <content type="html"><![CDATA[<p>The Ants AI Challenge is an very cool competition to test and improve your coding chops. Essentially you write a program to control a colony of ants like the Bugger Queen from Ender&#8217;s Game would.</p>
+
+<p>The official website does a pretty good job of getting you started, but I&#8217;ll give you some reccomendations having recently run through the startup process.</p>
+
+<!-- more -->
+
+
+<h2><a href="http://aichallenge.org/quickstart.php">Go Through the 5 Minute Quickstart Guide</a></h2>
+
+<p>This will get you through the account setup process and show you how to upload your bot to be tested after you&#8217;ve modified it.</p>
+
+<h2><a href="http://aichallenge.org/ants_tutorial.php">Go Through The Tutorial</a></h2>
+
+<p>This will help you develop simple versions of most of the tactics you&#8217;ll likely be working on for the rest of the contest:</p>
+
+<ul>
+<li>Avoiding Collisions</li>
+<li>Gathering Food</li>
+<li>Exploring the Map</li>
+<li>Managing New Ant Arrival through the Ant Hills</li>
+<li>Exploring the Map</li>
+<li>Attacking and Defending Hills</li>
+<li>Battles with other Ants</li>
+<li>Pathfinding</li>
+</ul>
+
+
+<h2><a href="http://aichallenge.org/using_the_tools.php">Download and Learn How to Use the Tools</a></h2>
+
+<p>As you build and improve your bot you&#8217;ll want to make sure that it still works and is improving. The simplest way to do that is to run a game using the tools. Actually the tutorial will go over this, but its important enough to say twice.</p>
+
+<p>If your bot is crashing you&#8217;ll want to see what went wrong, but its not obvious at first glance how to do that. What you need to do is add the -E option to your game playing script. This will print out any errors (and any debug information piped to stderr) into the game_logs folder by bot. This has been extremely helpful for me.</p>
+
+<h2>Some Other Cool Resources</h2>
+
+<p>Just keep in mind that I haven&#8217;t dug into some of these yet.</p>
+
+<p><a href="https://github.com/aichallenge/aichallenge/tree/epsilon/ants/dist/starter_bots">Better starter bot code</a> - Some changes have been made to the starter bots in the code repository, but haven&#8217;t yet been pushed to the zip files the website gives out. I know for a fact that the Java version is missing some useful code (seen vs unseen tracking). <a href="https://github.com/aichallenge/aichallenge/zipball/epsilon">Download a zipfile</a> or tarball if the code looks different than what you&#8217;ve got.</p>
+
+<p><a href="https://github.com/j-h-a/aichallenge/blob/vis_overlay/VIS_OVERLAY.md">A better visualizer</a> - so that you can see what your bot is thinking without having to resort to print statements. Very cool.</p>
+
+<p><a href="http://forums.aichallenge.org/viewtopic.php?f=25&amp;t=2007">Tcp Servers</a> - Is the official server playing games too slow for you? Run games on your own computer playing other bots doing the same thing through a tcp server. All the best bots are doing it &#8230;. :)</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[One Reason Array Based Programming Is Amazing [Video]]]></title>
+    <link href="http://hacklash.github.com/blog/2011/10/27/one-reason-array-based-programming-is-amazing-video/"/>
+    <updated>2011-10-27T13:36:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/10/27/one-reason-array-based-programming-is-amazing-video</id>
+    <content type="html"><![CDATA[<p>I mentioned array based programming yesterday as one of the paradigms to consider when choosing a new programming language. If you want a good reason why you should consider them, take a look at this video of Conway&#8217;s Game of Life in APL, one of a few Array Based Programming Languages:</p>
+
+<iframe width="420" height="315" src="http://www.youtube.com/embed/a9xAKttWgP4" frameborder="0" allowfullscreen></iframe>
+
+
+<p>For some more craziness see some <a href="https://github.com/kevinlawler/kona/wiki/Project-Euler-Code-Golf">code golf for Project Euler Problems using K</a>, another array based language. Remember though, this is code golf, so solutions should be expected to be hard to understand and much less readable than production code.</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Expand Your Mind With Your Next Programming Language]]></title>
+    <link href="http://hacklash.github.com/blog/2011/10/26/expand-your-mind-with-your-next-programming-language/"/>
+    <updated>2011-10-26T23:46:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/10/26/expand-your-mind-with-your-next-programming-language</id>
+    <content type="html"><![CDATA[<h1>Choosing A Language</h1>
+
+<h2>Rationale</h2>
+
+<p>When choosing a language to program in there are usually many factors that help you make the decision. The one most commonly relied on is probably familiarity. That is often okay because it is often the correct answer for the more important question, &#8220;Which language will help me get this project done best?&#8221; Usually the answer is the language you know best.</p>
+
+<p>When I don&#8217;t have to use a language I already know for business reasons or expediency, I try and pick a language that will expand my mind, even if I don&#8217;t expect to use it for something &#8220;serious&#8221; or for pay.</p>
+
+<p>Why do I struggle to accomplish the same tasks I can blaze through in Java or C++? I promise it&#8217;s not because I&#8217;m a glutton for punishment. I do it because knowing more than one language allows me to step out of the &#8220;I&#8217;m programming in X&#8221; mindset, where my solutions and thinking are restricted by language X. I want to have all of the ideas from programming available to me as I think about and solve the problem. Then I can implement those ideas in whichever language I end up using.</p>
+
+<h2>Methodology</h2>
+
+<p>Alright, by this point you&#8217;re hopefully on board with the idea that the next language you learn should expand your mind. Keeping that in mind, how should we choose our next language?</p>
+
+<p>The important thing to understand is that most programming languages are more alike than they are different. Usually this is great. Once you&#8217;ve learned one programming language it is much easier to learn a second. For example it is not too hard for a C++ programmer to get used to Java, or even for a Java programmer to switch to Python or Ruby. The major ideas between these languages are mostly the same. A programmer who is switching will spend most of their learning time getting used to the libraries i.e. where everything they are used to is at.</p>
+
+<p>These large similarities make it harder for us to pick a programming language that will be sufficiently different from what we are used to. If we don&#8217;t pick something weird enough we won&#8217;t get the kind of mental challenge and growth we are looking for.</p>
+
+<p>A helpful tool to figure out how similar languages are is to group them into paradigms. I&#8217;m going to assume that your first or most recent experience is in an imperative / Object-Oriented language like Java or C++. If that&#8217;s not the case then I&#8217;d recommend starting there so that you can communicate easily with the majority of the profession who did start there.</p>
+
+<p>If that doesn&#8217;t describe you, make a list of the languages that you know and cross off any of the paradigms that they fit. If you&#8217;re not sure, Wikipedia can help you out. Then pick a language from the remaining paradigms that interests you the most.</p>
+
+<p>I&#8217;ve only listed one example for each paradigm. This is because an exhaustive list is 1. impossible, 2. exhausting to put together and 3. nobody will be satisfied when you&#8217;re done. If you don&#8217;t like my choice for a paradigm, choose your own. That&#8217;s fine. Great even. The best language to learn is one where you know you can get some help. If that help is someone you know in person, even better. That&#8217;s why when you see my plan for the future, you shouldn&#8217;t be surprised that two of them aren&#8217;t even on my primary list. My roommate right now is pretty good at Haskell and (almost) always available to answer questions in person. As for Racket instead of Scheme, there are <a href="http://www.ccs.neu.edu/home/matthias/HtDP2e/">good</a> <a href="http://www.cs.brown.edu/~sk/Publications/Books/ProgLangs/">textbooks</a> and <a href="http://faculty.cs.byu.edu/~jay/home/">one of my professors</a> knows Racket <strong>really well</strong>.</p>
+
+<p>Anyways &#8230;</p>
+
+<!-- more -->
+
+
+<h2>Recommendations</h2>
+
+<ul>
+<li>Object-Oriented: Take your pick</li>
+<li>Imperative/Procedural: An assembly language</li>
+<li>Functional: Scheme</li>
+<li>Logic: Prolog</li>
+<li>Concatenative (or Stack-based): Joy</li>
+<li>Array Based: J - <a href="http://en.wikipedia.org/wiki/J_programming_language">on wikipedia</a></li>
+<li>Dataflow: Lucid - <a href="http://www.haskell.org/haskellwiki/Lucid">on haskellWiki</a></li>
+<li>Multi-Paradigm: Oz - <a href="http://en.wikipedia.org/wiki/Oz_programming_language">on wikipedia</a></li>
+</ul>
+
+
+<h2>Minor Paradigms</h2>
+
+<p>After you&#8217;ve gone through each of the major categories this list could help you choose a sub-paradigm.</p>
+
+<ul>
+<li>OO as Alan Kay envisioned: Smalltalk</li>
+<li>OO Aspects: AspectJ</li>
+<li>OO Roles: Perl 5 with Moose</li>
+<li>OO protoype based: io</li>
+<li>Functional &#8220;dynamically&#8221; typed: Scheme</li>
+<li>Functional &#8220;statically&#8221; typed: Standard ML</li>
+<li>Functional lazy: Haskell</li>
+<li>Functional for error tolerance and distributed systems: Erlang</li>
+<li>Statistics: R</li>
+<li>Hardware Description: SystemVerilog</li>
+<li>Text manipulation: Awk (and regex if you don&#8217;t know it well)</li>
+</ul>
+
+
+<h1>What About Me?</h1>
+
+<h2>What I Know</h2>
+
+<ul>
+<li>1 semester of C</li>
+<li>1 semester of Assembly</li>
+<li>2 years of Java</li>
+<li>A few weeks of Python</li>
+<li>2 semesters of C++</li>
+<li>Learning Scala right now</li>
+</ul>
+
+
+<p>So I&#8217;ve hit the imperative and object oriented angle pretty hard and barely started touching on the functional side with Scala.</p>
+
+<h2>My Plan</h2>
+
+<ul>
+<li>Racket for programming languages course - Eager, dynamically typed functional language</li>
+<li>Haskell from a friend before he graduates - Lazy, statically typed functional language</li>
+<li>Prolog</li>
+<li>Hadoop</li>
+<li>J</li>
+<li>Joy</li>
+<li>????</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[P=NP: A Timey Wimey Conversation]]></title>
+    <link href="http://hacklash.github.com/blog/2011/10/19/p-equals-np-a-timey-wimey-conversation/"/>
+    <updated>2011-10-19T20:33:00-06:00</updated>
+    <id>http://hacklash.github.com/blog/2011/10/19/p-equals-np-a-timey-wimey-conversation</id>
+    <content type="html"><![CDATA[<p>If you are baffled by the discussion about P=NP and what it all means, that&#8217;s ok.
+I was too. Luckily for you and <em>past me</em> this post can communicate with both of you
+through time and space.</p>
+
+<!-- more -->
+
+
+<p>Let&#8217;s get cracking then. Computer scientists do not know whether P = NP or P != NP.</p>
+
+<p><em>Hold on a second, isn&#8217;t that trivial? Isn&#8217;t that the same thing as finding out
+whether N = 1 or not, or maybe if P = 0 or not? Wait, what do N and P stand for
+anyways?</em></p>
+
+<p>That last one is a really good question. N and P aren&#8217;t variables, so you can&#8217;t
+solve for them algebraically like you tried to do there. They are actually
+abbreviations for different groups of problems. So N stands for nondeterministic
+and P for polynomial.</p>
+
+<p><em>Ok, so you&#8217;re saying that there are two groups of problems, polynomial and
+nondete&#8230; whatever polynomial problems and that computer scientists don&#8217;t know
+if these groups of problems are the same or not? This still sounds easy.
+If there are different categories aren&#8217;t they by definition not the same?</em></p>
+
+<p>Hmmm &#8230;. I guess it might be important to explain the basics of time complexity.
+Time comple-</p>
+
+<p><em>Time complexity? Like how time travel stories get really complex and stop making
+sense if you think about them too much?</em></p>
+
+<p>Heh, not quite, but speaking of time travel stories have you seen Primer?</p>
+
+<p><em>No</em></p>
+
+<p>You&#8217;ve at least read Heinlein&#8217;s <a href="http://pot.home.xs4all.nl/scifi/byhisbootstraps.pdf">By His Bootstraps</a>?</p>
+
+<p><em>No. You know I haven&#8217;t.</em></p>
+
+<p>Oh, right.</p>
+
+<p><em>Look you&#8217;re the one who contacted me. Let&#8217;s get on with this if you insist.</em></p>
+
+<p>Alright. Time complexity means that some problems can be solved faster than others.
+<em>Sure.</em> The problems that can be solved quickly are also part of the set of problems
+that take longer to solve because you could take longer to solve the problem if you
+wanted to. To get more concrete, problems in P can be solved in polynomial time
+on a deterministic computer, and problems in NP can be solved in polynomial time
+on a nondeterministic computer.</p>
+
+<p><em>Hold on. You keep mentioning &#8220;determinism&#8221; but I have no clue what that is supposed to mean.</em></p>
+
+<p>Hmmm &#8230;</p>
+
+<p>Well first of all determinism is best explained with its fraternal twin nondeterminism. As you know, an algorithm is a series of steps that when followed produce a consistent result. <em>I guess I do now.</em> Ok, well imagine that there is a choice in those series of steps, like a fork in the road, but only one path leads to your desired result. A deterministic computer would pick one of the paths somehow and try that path. Eventually it might run into a dead end and decide that it should have taken the other path and will come back and try that one.</p>
+
+<p>Now this is where things get a little weird, a nondeterministic computer works almost the same except that it has a perfect, temporarry cloning machine. When it gets to a fork in the road it doesn&#8217;t even make a choice it makes a perfect copy of itself, including another cloning machine and one copy goes down one path and the other down the second. When one of the copies finds the answer he shoots a flare into the air (letting the computer&#8217;s operator know that it has an answer) and all the other copies disappear.</p>
+
+<p>Now you could imagine that with all those free copies you do a lot more work in the same amount of time. There&#8217;s only one problem though, as you might have guessed we have no really good ideas for creating this magical cloning device. The only nondeterministic
+computer exists in Theory Land, a magical place Computer Scientists like to pretend
+exists. <em>Why?</em> &#8230; Because it lets them focus on the essential parts and not all the
+tricky implementation details when coming up with new ideas. Unfortunately for us,
+our friend the nondeterministic computer doesn&#8217;t seem likely to leave Theory Land
+anytime soon.</p>
+
+<p><em>Then why talk about it?</em></p>
+
+<p>Well, NP problems can be solved on a deterministic computer, which we do
+have in the real world. This just takes much longer than to solve problems from P. A deterministic computer has to do all the work himself, take all the paths until he gets an answer.
+In fact as soon as your problem is bigger than a toy example, the time to solve the
+problem grows so quickly that solving it is impractical.</p>
+
+<p><em>Is there any way for a computer to solve large versions of those problems?</em></p>
+
+<p>Well, if you don&#8217;t have to get the 100% accurate solution there are often ways to
+get slightly imprecise answers much quicker than it would take to find the perfect solution.
+The point is that finding the exact solution very quickly becomes impractical.
+If P=NP though, we have proven that there is an easy way to solve all these problems.</p>
+
+<p><em>Isn&#8217;t that a good thing though?</em></p>
+
+<p>For some things, absolutely! For instance we could improve shipping and infrustructure
+efficiency if we could solve the <a href="http://en.wikipedia.org/wiki/Travelling_salesman_problem">travelling salseman problem</a>. There would be some
+problems though. We rely on the fact that some problems are hard in order to keep
+your credit card number and other sensitive data safe when you send it over the
+internet.</p>
+
+<p><em>Come on, how often do I do that?</em></p>
+
+<p>Ok, imagine a world without Amazon.</p>
+
+<p><em>My book selection! And I&#8217;d have to actually get off my butt and go somewhere,
+like &#8230; Barnes and Noble I guess. No thanks.</em></p>
+
+<p>I know exactly how you feel. <em>Rolls eyes.</em> A world where encryption
+can&#8217;t be trusted or can be easily broken may be a step backwards.</p>
+
+<p><em>I guess I can see why finding out that P=NP might be important. You would have
+to implement some sort of disaster plan in order to prevent an e-commerce collapse.
+Speaking of disaster plans do you have Zombie plan yet?</em></p>
+
+<p>Nope, I just kind of made it up as I went along. <em>What!?!</em> Uhh &#8230; nevermind. I don&#8217;t
+have much time left before this connection closes &#8230;</p>
+
+<p><em>And this is what you choose to tell me? Can&#8217;t you at least throw out some stock
+ticker symbols?</em></p>
+
+<p>No, shut up and let me finish one last thing. <em>But &#8230;</em> Shush! I forgot to tell
+you how people try to prove P=NP or P!=NP. Proving that a problem in NP is also
+P does get you faster solution for that problem, but that just means we mislabeled
+the problem in the first place. NP-complete problems are a subset of NP and have been proven equivalent to each other. You can actually translate each of them into any other NP-complete problem
+which is cool. <em>Is it?</em> Shush.</p>
+
+<p>NP-complete problems have the property that if you can prove that one NP-complete problem is actually in P then you have proven that all NP-complete problems are in P and actually at the same time, that all NP problems
+are also in P.</p>
+
+<p><em>I guess that is kind of cool. But I still don&#8217;t see why proving either P=NP or
+P!=NP is important.</em></p>
+
+<p>Actually it may not be. Some people think it is pretty important, or at least
+prestigious and spend many hours trying to prove one of the two theorems. Every few
+years someone thinks they have it solved, only to have missed something. <a href="http://en.wikipedia.org/wiki/Moshe_Y._Vardi">Others</a>
+feel <a href="http://cacm.acm.org/magazines/2010/11/100641-on-p-np-and-computational-complexity/fulltext">finding out one way or the other may actually not be that important</a>.</p>
+
+<p><em>You really could have picked something more valuable for us both than this.</em></p>
+
+<p>Hey, it&#8217;ll save you from some confusion, and it is an important theory from Computer
+Science, which you are studying.</p>
+
+<p><em>I am?</em></p>
+
+<p>Uhh, I&#8217;m almost out of time, so before I go, here&#8217;s a piece of paper with the
+essentials in case you forget. Farewell and good luck!</p>
+
+<h3>The Note</h3>
+
+<blockquote><ul>
+<li>P and N are not variables</li>
+<li>P and NP are abbreviations for the names of two different classes of problems, (polynomial and nondeterministic polynomial)</li>
+<li>P is a subset of NP. Problems in P are also in NP but as far as we know not vice versa.</li>
+<li>Problems in P likely have practical solutions while problems in NP have no practical exact solutions.</li>
+<li>If P=NP all problems that a computer can solve have a fairly easy solution (whether we curently know that solution yet or not)</li>
+<li>This would be good for some things (transportationg and shipping among others) and bad for others (encryption and e-commerce)</li>
+<li>NP-complete problems are a subgroup of NP and are all equivalent to each other. They are important because they can can be used to prove whether P=NP or P!=NP. Proving that one NP-complete problem is in P is equivalent to proving all NP problems are in P.</li>
+</ul>
+
+
+<p>AAPL Buy $83 Sell $424</p></blockquote>
+]]></content>
+  </entry>
+  
+</feed>

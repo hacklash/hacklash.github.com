@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: links, | Trevor Oakes]]></title>
+  <link href="http://hacklash.github.com/blog/categories/links-/atom.xml" rel="self"/>
+  <link href="http://hacklash.github.com/"/>
+  <updated>2012-06-01T10:19:03-06:00</updated>
+  <id>http://hacklash.github.com/</id>
+  <author>
+    <name><![CDATA[Trevor Oakes]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[John Carmack on Static Analysis]]></title>
+    <link href="http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis/"/>
+    <updated>2012-03-01T15:22:00-07:00</updated>
+    <id>http://hacklash.github.com/blog/2012/03/01/john-carmack-on-static-analysis</id>
+    <content type="html"><![CDATA[<p>... and functional programming.</p>
+
+<p><blockquote><p>The most important thing I have done as a programmer in recent years is to aggressively pursue static code analysis.  Even more valuable than the hundreds of serious bugs I have prevented with it is the change in mindset about the way I view software reliability and code quality.</p><footer><strong>John Carmack, #AltDevBlogADay</strong> <cite><a href='http://altdevblogaday.com/2011/12/24/static-code-analysis/'>altdevblogaday.com/2011/12/24/&hellip;</a></cite></footer></blockquote></p>
+
+<p>Now if you don't know who that is, that's ok, but out of the people in industry that I know, which to be fair isn't many, John Carmack is the programmer that I repect the most. It's not just because he created some very popular games (Doom and Quake for instance) but that he essentially created the western game industry as we know it by creating whole new graphics techniques.</p>
+
+<p>First he wrote the first all-software 2d game engine for Commander Keane, and then he created the whole 3d games genre with Doom. The techniques he developed and even a decent chunk of the code that John Carmack has written lives in practically every 3d western game you've ever played. Wow.</p>
+
+<p>I'm really glad that Carmack recognizes the importance of static analysis and functional programming languages on code quality, and its good to hear when reasearch we have about software productivity is supported by luminaries in industry. I've started the video where he begins talking about static analysis which goes until 1:12:35.</p>
+
+<p><em>Stay til then and you'll hear him recommend Haskell and Ocaml, which makes me smile.</em></p>
+
+<iframe width="560" height="315" src="http://www.youtube.com/embed/4zgYG-_ha28?rel=0&start=3253" frameborder="0" allowfullscreen></iframe>
+
+]]></content>
+  </entry>
+  
+</feed>

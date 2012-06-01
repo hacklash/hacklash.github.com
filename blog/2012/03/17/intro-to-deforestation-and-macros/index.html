@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Intro to Deforestation and Macros - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="My new project is to write a deforestation macro for Racket. Since I&#8217;ll be spending a lot of time on that in the next few months and there will &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2012/03/17/intro-to-deforestation-and-macros">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Intro to Deforestation and Macros</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-17T21:39:00-06:00" pubdate data-updated="true">Mar 17<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>My new project is to write a deforestation macro for Racket. Since I&#8217;ll be spending a lot of time on that in the next few months and there will probably be a corresponding amount of related content here on the blog, for the rest of the post I&#8217;ll unpack that sentence for you so you can follow along in the future. Read on to get a grounding in deforestation and Racket macros.</p>
+
+<!-- more -->
+
+
+<h2>Racket</h2>
+
+<p>Racket is a member of the Lisp family of languages, more recently diverging from Scheme. Racket takes that core and adds more interesting continuations, macros and an emphasis on real programs and practical research. That means that it has tons of libraries. Actually Racket is more like a language implementation platform, with a primary language <code>#lang racket</code> but there is also a lazy language, standards compliant versions of scheme, a functional reactive programming language (a functional abstraction over gui programming), learning languages and even a logic programming language. And its easy to create your own.</p>
+
+<p>One way is with macros, and Lispy languages are really great at doing macros. One reason is that they are homoiconic, i.e. the representation of the program is actually a data structure in the same language. For lisp this means lists. Perhaps you&#8217;ve heard the idea that code is data. If not, you&#8217;ve probably never worked on a compiler or interpreter. Remember that a program uses code to transform input data to output data. Now think about a compiler, it is a program that takes in code and produces code. The code you pass to gcc <em>is</em> data to gcc. Code is just data. Essentially homoiconicity means that not only is code data, but data that your own code can understand.</p>
+
+<h2>Macros</h2>
+
+<p>This is where macros come in. Now, I&#8217;d like to be clear at the outset of a section on macros that I am not talking about the abomination that C++ calls macros. I shudder involuntarily at the thought of C++ &#8220;macros&#8221;.</p>
+
+<p>Macros look at your code as data and transform it into a different program. Essentially they allow you to create your own language, Racket+, which the macros you created, like a compiler, transform the rest of your program into Racket. Then Racket eventually interprets/compiles your program to the native platform. Lots of Racket features are actually implemented using macros so it&#8217;s macros <em>almost</em> all the way down.</p>
+
+<p>Language extensions to the language in the language? Sign me up. Actually the point of this project is for me to learn macros since the best way to learn them is to write them.</p>
+
+<p>What I&#8217;ve described so far applies to Scheme, Lisp and even <em>shudder</em> C++ macros. The problem with C++ macros is that they perform text to text transformations. This process is error prone and makes me sick inside. Lisp macros manipulate parenthesized expressions of Lisp data, or s-expressions. This is a <em>huge</em> improvement over text manipulation, comparable to the difference between storing all your data in a string that you parse and extract and manipulate versus using actual data structures like arrays, maps, and trees.</p>
+
+<p>This is a big improvement, but definitely not perfect. Lisp macros have a hygiene problem. Apparently &#8220;hygiene&#8221; is a mathematical term, but what it means is that names defined or used in a Lisp macro can clash with names defined in the outer program, by other macros, or even the same macro used multiple times. If two macros who work in isolation are used together, there is no way to know for sure that they will work together without checking the source code. Sure, there are workarounds, gensyms, packages, etc. but why deal with that when there is a better system: hygienic macros from Scheme or Racket?</p>
+
+<p>Essentially hygienic macros extend the idea of lexical scope to macros. Lexical (or static) scope is the idea that it should be obvious from looking at nearby code what a name means. In languages with first-class functions or macros this is not trivial property to have so some don&#8217;t bother, but lexical scope is good for the same reason that avoiding global variables and unnecessary mutation are good. They make your programs easier to reason about.</p>
+
+<p>Racket takes the idea of hygiene even further than Scheme. As for how exactly I&#8217;m not yet exactly clear. Something about safe ways to violate the hygiene rules but still stay squeaky clean, making them more flexible/powerful. The commenters on <a href="http://www.randomhacks.net/articles/2002/09/13/hygienic-macros">Why Hygienic Macros Rock</a> discuss it a little bit. I&#8217;ll have to get back to you on why, or feel free lay down the law in the comments.</p>
+
+<h2>Deforestation</h2>
+
+<p>The point of deforestation, in the computer science sense, is to make functional abstractions efficient. By focusing on saying what you want and not how it should be done you can write clearer more concise programs:</p>
+
+<figure class='code'><figcaption><span>Functional Version  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">square</span> <span class="n">n</span> <span class="ow">=</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span>
+</span><span class='line'><span class="nf">sumOfSquaresTo</span> <span class="n">n</span> <span class="ow">=</span> <span class="n">sum</span> <span class="p">(</span><span class="n">map</span> <span class="n">square</span> <span class="p">[</span><span class="mi">1</span><span class="o">..</span><span class="n">n</span><span class="p">])</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>versus:</p>
+
+<figure class='code'><figcaption><span>The Imperative Version  </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='python'><span class='line'><span class="k">def</span> <span class="nf">square</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">n</span> <span class="o">*</span> <span class="n">n</span>
+</span><span class='line'><span class="k">def</span> <span class="nf">sumOfSquaresTo</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+</span><span class='line'>    <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">number</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="p">):</span>
+</span><span class='line'>        <span class="nb">sum</span> <span class="o">+=</span> <span class="n">square</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">sum</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The functional version is more concise and once you learn the basics of functional programming, just as clear. Now before you complain, I realize that you could use the sum function, but it would do something similar with a loop. I lifted the loop out of the sum function because I wanted to make the algorithm&#8217;s performance characteristics obvious.)</p>
+
+<p>Although the functional version wins in conciseness, there is a tradeoff - the simple way to compile it will use two intermediate lists, the numbers from 1 to n and the first n squares, while the imperative version uses no lists (at least in python3, xrange in python 2 would have the same effect). Creating and storing these lists are less efficient than we would hope. Stream fusion is the process of transforming operations on lists that use intermediate lists into fast imperative code behind the scenes. Deforestation is the same process but more general, it also works on tree-like data, and removes intermediate trees, making the code more cpu and memory efficient.
+Strategies like these have been applied the Glorious Haskell Compiler (usually referred to as ghc), but my task is to write a Racket macro to do the same thing.</p>
+
+<p>Since I&#8217;ll be reading and taking notes on deforestation papers, summaries of them will probably pop up here in the future. If you want to get a head start, you overachiever you, here are the papers I will read:</p>
+
+<ul>
+<li><a href="http://scholar.google.com/scholar?cluster=1027879618469354516">Deforestation: transforming programs to eliminate trees</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=6305039901575196405">Stream Fusion: From Lists to Streams to Nothing at All</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=706783204238944503">Declarative Programs: A Deforestation Case Study</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=6051548364855596038">Attribute Grammars and Functional Programming Deforestation</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=9372977837493231928">A short cut to Deforestation</a></li>
+<li><a href="http://scholar.google.com/scholar?cluster=7290223101246113498">Towards unifying partial evaluation, deforestation, supercompilation, and GPC</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-03-17T21:39:00-06:00" pubdate data-updated="true">Mar 17<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/08/first-class-and-higher-order-functions/" title="Previous Post: First Class and Higher Order Functions">&laquo; First Class and Higher Order Functions</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2011/12/23/greenteas-2nd-place-entry-postmortem-translated-by-hand/">GreenTea's 2nd Place Entry Postmortem Translated by Hand</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2012/03/17/intro-to-deforestation-and-macros/';
+        var disqus_url = 'http://hacklash.github.com/blog/2012/03/17/intro-to-deforestation-and-macros/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
