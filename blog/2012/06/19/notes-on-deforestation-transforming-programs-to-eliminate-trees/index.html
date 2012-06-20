@@ -1,0 +1,340 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Notes on Deforestation: Transforming programs to eliminate trees - Trevor Oakes</title>
+  <meta name="author" content="Trevor Oakes">
+
+  
+  <meta name="description" content="As I am making notes as I read papers, It seemed a shame to let them bit rot in &#8220;the cloud&#8221;. If you don&#8217;t already have the paper in &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://hacklash.github.com/blog/2012/06/19/notes-on-deforestation-transforming-programs-to-eliminate-trees">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="http://feeds.feedburner.com/trevoroakes" rel="alternate" title="Trevor Oakes" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27908177-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Trevor Oakes</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="http://feeds.feedburner.com/trevoroakes" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:hacklash.github.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Notes on Deforestation: Transforming programs to eliminate trees</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-19T21:17:00-06:00" pubdate data-updated="true">Jun 19<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>As I am making notes as I read papers, It seemed a shame to let them bit rot in <a href="https://docs.google.com/">&#8220;the cloud&#8221;</a>.</p>
+
+<p>If you don&#8217;t already have the paper in front of you, get it from one of <a href="http://scholar.google.com/scholar?cluster=1027879618469354516">these links</a>.</p>
+
+<h2>Paper Outline</h2>
+
+<p>The idea is to create a new optimization for optimizing functional compilers to reduce memory overhead.
+The paper:</p>
+
+<ol>
+<li>Defines pure treeless form for a first-order lazy functional language</li>
+<li>Extends that model with “Blazing” - marking trees according to type, to allow some intermediate values that don&#8217;t affect efficiency</li>
+<li>Adds back most higher order functions using higher-order macros</li>
+</ol>
+
+
+<p>It came out of the author&#8217;s <a href="http://scholar.google.com/scholar?cluster=18051469765918212223">previous</a> <a href="http://scholar.google.com/scholar?cluster=16047718747708421938">work</a> on &#8220;listlessness,&#8221; but is simpler, more general and the result is a functional, not an imperative program. For example, the algorithm developed in the second paper only applies when pre-order traversal can be verified. However, the class of treeless functions is not a superset of the class of listless programs; the deforestation algorithm does not optimize programs like the average function <code>(/ (sum xs) (length xs))</code>.</p>
+
+<!-- more -->
+
+
+<h2>Some Definitions</h2>
+
+<ul>
+<li>Deforestation - an algorithm that turns a function composed of functions that have treeless forms to a function in treeless form</li>
+<li>Treeless form - a linear function definition with no intermediate trees (or in a simpler case, lists)</li>
+<li>linear function - a function where the inputs do not appear more than once in the body of the function. <code>square x = x * x</code> is not linear, while <code>square x = exp ( 2 * log x)</code> is.</li>
+<li>Blazing - marking a term (from a forestry term to make a cut in the bark of a tree) by its type</li>
+</ul>
+
+
+<p>These next few are more widespread but I had to look up because I was hazy on what they meant.</p>
+
+<ul>
+<li>first-order logic - predicates are sets</li>
+<li>higher-order logic - predicates can be sets of sets i.e. Predicates and functions can be arguments to predicates</li>
+<li>arity - the number of arguments to a function, i.e. unary, binary, ternary, etc.</li>
+<li>unfolding - replacing an instance of the left-hand side of an equation by the corresponding right hand side</li>
+</ul>
+
+
+<h2>Motivating Example Breakdown</h2>
+
+<p>Near the beginning of the paper we are given a functional program as a motivating example <code>sum (map square (upto 1 n))</code> which can be transformed into</p>
+
+<figure class='code'> <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='haskell'><span class='line'><span class="nf">h</span> <span class="mi">0</span> <span class="mi">1</span> <span class="n">n</span>
+</span><span class='line'><span class="kr">where</span>
+</span><span class='line'><span class="nf">h</span> <span class="n">a</span> <span class="n">m</span> <span class="n">n</span> <span class="ow">=</span> <span class="kr">if</span> <span class="n">m</span> <span class="o">&gt;</span> <span class="n">n</span>
+</span><span class='line'>          <span class="kr">then</span> <span class="n">a</span>
+</span><span class='line'>          <span class="kr">else</span> <span class="n">h</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">square</span> <span class="n">m</span><span class="p">)</span> <span class="p">(</span><span class="n">m</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="n">n</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>using the deforestation technique in the paper. It wasn&#8217;t clear to me where all the parts of the deforested program came from so I broke it up:</p>
+
+<ul>
+<li>m comes from upto, representing, by turn, each member of the list</li>
+<li>+1 is the stepping function of the initial list (from upto)</li>
+<li>a is the accumulator from the fold that the treeless version of sum is implemented with</li>
+</ul>
+
+
+<h2>Proofs for Optimization and Termination</h2>
+
+<p>Instead of proving that the algorithm optimizes, Wadler instead proves that it cannot make the program less efficient, which was easier, but in fact if there are intermediate trees the transformation will be an optimization.
+In order to ensure that the the algorithm is an optimization, terms must be linear and &#8220;every argument of function application and every selector of a case term [must be] a variable.&#8221;
+Insisting that treeless definitions are linear guarantees that they can be unfolded without sacrificing efficiency. If evaluating the variable is expensive, deforestation of non-linear terms can cause the variable to be evaluated more than once.
+The restriction that particular arguments must be variables guarantees that no intermediate trees are created.</p>
+
+<p>The other important thing is to prove that this transformation itself terminates. The proofs are pretty clear, so read them if you&#8217;re interested. There is one interesting corner case though: at some point we need to introduce new definitions, otherwise some fusings like flip wouldn’t terminate, but where? Keep a list of terms encountered in the deforest process. If the term is found again as  a renaming, create a function and use instead of having the deforest function recurse again.</p>
+
+<h2>Blazing</h2>
+
+<p>Our example program still doesn&#8217;t optimize as much as we&#8217;d like it to. <code>upto</code> creates a “tree” of integers. Types like <code>int</code>, <code>bool</code> and polymorphic types are blazed so that intermediate terms of that type may remain. Intermediate &#8220;tree&#8221; forms do not cause large memory overheads. You may be surprised to see polymorphic things in that list, but this is safe because we know they are not manipulated because they are polymorphic and so they can be shared. If an expression is in blazed treeless form  we can then perform a modified deforestation algorithm. Blazed treeless form means that places where intermediate values may appear must be variables or blazed safe, and the term must be linear in variables blazed unsafe, i.e. duplication of safe variables does not create expensive computations.</p>
+
+<h2>Macros</h2>
+
+<p>The idea of this section of the paper it to keep most of the expressiveness of higher-order functions in a first-order language, by treating higher-order functions as macros that build the appropriate first order functions which can then be deforested. They are one way to simplify things like this (program transformation systems) without losing most of the expressive power. The restriction: higher order macros cannot be recursive. This approach was unproven (at time of writing). If you know of papers that discuss this, speak up in the comments. (Goguen uses a <a href="http://scholar.google.com/scholar?cluster=8661375455972324898">different method</a> to keep higher-order functions using parameterized modules instead.) Another alternative would be to create an alternative algorithm that applies to higher-order functions directly so you don’t  have to treat them as macros.</p>
+
+<h2>And an Unanswered Question</h2>
+
+<p>Wadler states that the deforestation optimization is more suitable for lazy languages, because in a strict language deforestation can transform an undefined program into a value returning one. How? And what would be an example program?</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Trevor Oakes</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-06-19T21:17:00-06:00" pubdate data-updated="true">Jun 19<span>th</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/03/17/intro-to-deforestation-and-macros/" title="Previous Post: Intro to Deforestation and Macros">&laquo; Intro to Deforestation and Macros</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/06/19/notes-on-deforestation-transforming-programs-to-eliminate-trees/">Notes on Deforestation: Transforming programs to eliminate trees</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/17/intro-to-deforestation-and-macros/">Intro to Deforestation and Macros</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/08/first-class-and-higher-order-functions/">First Class and Higher Order Functions</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/03/01/john-carmack-on-static-analysis/">John Carmack on Static Analysis</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/02/22/programming-languages-and-sheet-music/">Programming Languages and Sheet Music</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("TrevorOakes", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/TrevorOakes" class="twitter-follow-button" data-show-count="false">Follow @TrevorOakes</a>
+  
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Trevor Oakes -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'trevoroakes';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://hacklash.github.com/blog/2012/06/19/notes-on-deforestation-transforming-programs-to-eliminate-trees/';
+        var disqus_url = 'http://hacklash.github.com/blog/2012/06/19/notes-on-deforestation-transforming-programs-to-eliminate-trees/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
